@@ -1,0 +1,23 @@
+var setter;
+var getter;
+func outer() {
+    var b = 5;
+
+    func gg() {
+        print aa;
+        return aa;
+    }
+
+    func ss() {
+        aa = 10;
+    }
+
+    setter = ss;
+    getter = gg;
+}
+
+outer();
+
+getter();
+setter();
+getter();

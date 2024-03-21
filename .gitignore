@@ -1,0 +1,8 @@
+.antlr/
+cmake-build-debug
+cmake-build-release
+testrig
+CMakeUserPresets.json
+conanfile.py.bak
+.idea
+*.jar
