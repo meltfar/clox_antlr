@@ -32,7 +32,11 @@ public:
 
 int main() {
     std::stringstream ss;
-    ss << "2 == 3;\n";
+    ss << "\"";
+    ss << "sdfedfsdf";
+    ss << "\" == 3.3;\n";
+    ss << "\"wode\" == false;\n";
+    ss << "\"wer\" != (2 + 3.2);\n";
     antlr4::ANTLRInputStream input(ss);
     loxLexer lexer(&input);
     antlr4::CommonTokenStream tokens(&lexer);
