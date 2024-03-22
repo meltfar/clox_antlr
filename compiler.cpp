@@ -73,7 +73,6 @@ void Compiler::assignment(loxParser::AssignmentContext *ctx) {
     for (auto cld: ctx->children) {
         // call
         if (auto cal = dynamic_cast<loxParser::CallContext *>(cld); cal != nullptr) {
-            // TODO
             continue;
         }
         // IDENTIFIER '=' assignment | logic_or;
@@ -234,7 +233,6 @@ void Compiler::primary(loxParser::PrimayContext *ctx) {
 
     // super . IDENTIFIER
     if (f1 == "super") {
-        // TODO: handle super
         auto v1 = ctx->IDENTIFIER();
         auto v1_name = v1->getText();
 
