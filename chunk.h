@@ -4,12 +4,9 @@
 
 #ifndef CHUNK_H
 #define CHUNK_H
-#include <variant>
-
-#include "compiler.h"
 
 enum OpCode {
-    OP_CONSTANT,
+    OP_CONSTANT_16,
     OP_NIL,
     OP_TRUE,
     OP_FALSE,
@@ -49,22 +46,6 @@ enum ValueType {
     VAL_NIL,
     VAL_NUMBER,
     VAL_OBJ,
-};
-
-struct LoxValue {
-    std::variant<bool, double, std::unique_ptr<Object> > data;
-
-    explicit LoxValue(double n) {
-        this->data = n;
-    }
-
-    explicit LoxValue(bool n) {
-        this->data = n;
-    }
-
-    explicit LoxValue(Object n) {
-        this->data = std::make_unique<Object>(n);
-    }
 };
 
 #endif //CHUNK_H

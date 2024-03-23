@@ -5,32 +5,23 @@
 #include "compiler.h"
 
 
-void ObjFunction::write_opcode(const OpCode code) {
-    this->chunk_.push_back(code);
+void Compiler::debug_print(const std::shared_ptr<ObjFunction> &func) {
+    func->debug_print_chunk();
 }
 
-void ObjFunction::write_constant(const double value) {
-    // constant value
-    this->value_array_.emplace_back(value);
-
-    // Format: OP_CON 01
-    this->chunk_.push_back(OP_CONSTANT);
-    this->chunk_.push_back(this->value_array_.size() - 1);
-}
-
-void ObjFunction::write_constant(bool value) {
-    // constant value
-    this->value_array_.emplace_back(value);
-
-    // Format: OP_CON Index_of_value
-    this->chunk_.push_back(OP_CONSTANT);
-    this->chunk_.push_back(this->value_array_.size() - 1);
-}
-
-void Compiler::compile(loxParser::ProgramContext *program) {
+CompiledResult Compiler::compile(loxParser::ProgramContext *program) {
     for (const auto dec: program->declaration()) {
         this->declaration(dec);
     }
+
+    // final return
+    this->function_->write_opcode(OP_RETURN);
+
+    auto cr = CompiledResult{};
+    cr.script = std::move(this->function_);
+    cr.string_table = std::move(this->string_table_);
+
+    return cr;
 }
 
 void Compiler::declaration(loxParser::DeclarationContext *ctx) {
@@ -58,6 +49,11 @@ void Compiler::statement(loxParser::StatementContext *ctx) {
     /* forStmt*/
     /* ifStmt*/
     /* printStmt*/
+    if (const auto print_stmt = dynamic_cast<loxParser::PrintStmtContext*>(cld); print_stmt != nullptr) {
+        this->expression(print_stmt->expression());
+        this->function_->write_opcode(OP_PRINT);
+        return;
+    }
     /* returnStmt*/
     /* whileStmt*/
     /* block*/
@@ -114,7 +110,7 @@ void Compiler::equality(loxParser::EqualityContext *ctx) {
     }
 }
 
-void Compiler::comparison(loxParser::ComparisonContext *ctx) {
+void Compiler::comparison(const loxParser::ComparisonContext *ctx) {
     for (auto cld: ctx->children) {
         // term
         if (auto term = dynamic_cast<loxParser::TermContext *>(cld); term != nullptr) {
@@ -128,48 +124,87 @@ void Compiler::comparison(loxParser::ComparisonContext *ctx) {
     }
 }
 
-void Compiler::term(loxParser::TermContext *ctx) {
-    for (auto cld: ctx->children) {
-        // factor
-        if (auto factor = dynamic_cast<loxParser::FactorContext *>(cld); factor != nullptr) {
-            this->factor(factor);
-            continue;
-        }
-        // + -
-        if (auto ter = dynamic_cast<antlr4::tree::TerminalNodeImpl *>(cld); ter != nullptr) {
-            std::cout << ter->getText() << std::endl;
+void Compiler::term(const loxParser::TermContext *ctx) {
+    assert(ctx->children.size() % 2 == 1);
+
+    // handle the first unary
+    const auto factor_leftmost = dynamic_cast<loxParser::FactorContext *>(ctx->children[0]);
+    if (factor_leftmost == nullptr) {
+        throw std::exception("the leftmost unary in factor should not be null");
+    }
+    this->factor(factor_leftmost);
+
+    // then comes with a sequence of pairs
+    for (int i = 0; i < (ctx->children.size() - 1) / 2; ++i) {
+        const auto op = dynamic_cast<antlr4::tree::TerminalNodeImpl *>(ctx->children[i * 2 + 1]);
+        const auto factor_2 = dynamic_cast<loxParser::FactorContext *>(ctx->children[i * 2 + 2]);
+
+        this->factor(factor_2);
+
+        auto op_str = op->getText();
+        std::cout << op_str << std::endl;
+        if (op_str == "+") {
+            this->function_->write_opcode(OP_ADD);
+        } else {
+            this->function_->write_opcode(OP_SUBTRACT);
         }
     }
 }
 
-void Compiler::factor(loxParser::FactorContext *ctx) {
-    for (auto cld: ctx->children) {
-        // unary
-        if (auto unary = dynamic_cast<loxParser::UnaryContext *>(cld); unary != nullptr) {
-            this->unary(unary);
-            continue;
-        }
-        // * /
-        if (auto ter = dynamic_cast<antlr4::tree::TerminalNodeImpl *>(cld); ter != nullptr) {
-            std::cout << ter->getText() << std::endl;
+void Compiler::factor(const loxParser::FactorContext *ctx) {
+    assert(ctx->children.size() % 2 == 1);
+
+    // handle the first unary
+    const auto unary_leftmost = dynamic_cast<loxParser::UnaryContext *>(ctx->children[0]);
+    if (unary_leftmost == nullptr) {
+        throw std::exception("the leftmost unary in factor should not be null");
+    }
+    this->unary(unary_leftmost);
+
+    // then comes with a sequence of pairs
+    for (int i = 0; i < (ctx->children.size() - 1) / 2; ++i) {
+        const auto op = dynamic_cast<antlr4::tree::TerminalNodeImpl *>(ctx->children[i * 2 + 1]);
+        const auto unary_2 = dynamic_cast<loxParser::UnaryContext *>(ctx->children[i * 2 + 2]);
+
+        this->unary(unary_2);
+
+        auto op_str = op->getText();
+        std::cout << op_str << std::endl;
+        if (op_str == "*") {
+            this->function_->write_opcode(OP_MULTIPLY);
+        } else {
+            this->function_->write_opcode(OP_DIVIDE);
         }
     }
 }
 
-void Compiler::unary(loxParser::UnaryContext *ctx) {
-    for (auto cld: ctx->children) {
-        // ! -
-        if (auto ter = dynamic_cast<antlr4::tree::TerminalNodeImpl *>(cld); ter != nullptr) {
-            std::cout << ter->getText() << std::endl;
-            continue;
+void Compiler::unary(const loxParser::UnaryContext *ctx) {
+    assert(ctx->children.size() <= 2);
+    auto index = 0;
+    // ! -
+    std::string unary_op;
+    if (ctx->children.size() > 1) {
+        const auto ter = dynamic_cast<antlr4::tree::TerminalNodeImpl *>(ctx->children[index++]);
+        if (ter == nullptr) {
+            throw std::exception("ter should not be nullptr");
         }
-        // unary
-        if (auto unary = dynamic_cast<loxParser::UnaryContext *>(cld); unary != nullptr) {
-            this->unary(unary);
-        }
+        unary_op = ter->getText();
+        std::cout << unary_op << std::endl;
+    }
+
+    // unary
+    if (const auto unary = dynamic_cast<loxParser::UnaryContext *>(ctx->children[index]); unary != nullptr) {
+        this->unary(unary);
+    } else if (const auto cal = dynamic_cast<loxParser::CallContext *>(ctx->children[index]); cal != nullptr) {
         // call
-        if (auto cal = dynamic_cast<loxParser::CallContext *>(cld); cal != nullptr) {
-            this->call_dec(cal);
+        this->call_dec(cal);
+    }
+
+    if (!unary_op.empty()) {
+        if (unary_op == "!") {
+            this->function_->write_opcode(OP_NOT);
+        } else {
+            this->function_->write_opcode(OP_NEGATE);
         }
     }
 }
@@ -189,18 +224,20 @@ void Compiler::call_dec(loxParser::CallContext *ctx) {
 
 void Compiler::primary(loxParser::PrimayContext *ctx) {
     // NUMBER
-    if (auto number = ctx->NUMBER(); number != nullptr) {
-        auto n1 = std::stod(number->getText());
+    if (const auto number = ctx->NUMBER(); number != nullptr) {
+        const auto n1 = std::stod(number->getText());
         std::cout << "primay - number: " << n1 << std::endl;
 
         this->function_->write_constant(n1);
         return;
     }
     // STRING_LITERAL
-    if (auto str = ctx->STRING_LITERAL(); str != nullptr) {
+    if (const auto str = ctx->STRING_LITERAL(); str != nullptr) {
         auto s1 = str->getText();
         s1 = s1.substr(1, s1.length() - 2);
         std::cout << "primay - string: " << s1 << std::endl;
+
+        this->function_->write_string(std::move(s1));
         return;
     }
 

@@ -5,21 +5,9 @@
 #ifndef COMPILER_H
 #define COMPILER_H
 #include <memory>
-#include <string>
-
-#include "chunk.h"
+#include "object.h"
 #include "loxParser.h"
 
-enum ObjectType {
-    OBJ_BOUND_METHOD,
-    OBJ_CLASS,
-    OBJ_CLOSURE,
-    OBJ_FUNCTION,
-    OBJ_NATIVE,
-    OBJ_STRING,
-    OBJ_UPVALUE,
-    OBJ_INSTANCE,
-};
 
 enum FunctionType {
     TYPE_FUNCTION,
@@ -27,38 +15,17 @@ enum FunctionType {
     TYPE_SCRIPT
 };
 
-class Object : std::enable_shared_from_this<Object> {
-    bool is_marked_;
-    ObjectType type_;
+struct CompiledResult {
+    std::shared_ptr<ObjFunction> script;
+    std::unordered_map<std::string, LoxValue> string_table;
 };
 
-class ObjFunction : Object {
-    int arity_;
-    std::vector<uint8_t> chunk_;
-    std::vector<LoxValue> value_array_;
-    std::string function_name_;
-
-public:
-    ObjFunction(): arity_(0) {
-        chunk_ = std::vector<uint8_t>();
-        value_array_ = std::vector<LoxValue>();
-    }
-
-    void write_opcode(OpCode code);
-
-    void write_constant(double value);
-
-    void write_constant(bool value);
-
-    int get_arity() const {
-        return this->arity_;
-    }
-};
 
 class Compiler : std::enable_shared_from_this<Compiler> {
     std::shared_ptr<Compiler> parent_compiler_;
     int scope_depth_;
     std::shared_ptr<ObjFunction> function_;
+    std::unordered_map<std::string, LoxValue> string_table_;
 
 public:
     explicit Compiler(): scope_depth_(0) {
@@ -71,7 +38,9 @@ public:
         this->scope_depth_ = parent_.scope_depth_ + 1;
     }
 
-    void compile(loxParser::ProgramContext *program);
+    static void debug_print(const std::shared_ptr<ObjFunction>& func);
+
+    CompiledResult compile(loxParser::ProgramContext *program);
 
     void declaration(loxParser::DeclarationContext *ctx);
 
@@ -87,13 +56,13 @@ public:
 
     void equality(loxParser::EqualityContext *ctx);
 
-    void comparison(loxParser::ComparisonContext *ctx);
+    void comparison(const loxParser::ComparisonContext *ctx);
 
-    void term(loxParser::TermContext *ctx);
+    void term(const loxParser::TermContext *ctx);
 
-    void factor(loxParser::FactorContext *ctx);
+    void factor(const loxParser::FactorContext *ctx);
 
-    void unary(loxParser::UnaryContext *ctx);
+    void unary(const loxParser::UnaryContext *ctx);
 
     void call_dec(loxParser::CallContext *ctx);
 

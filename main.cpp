@@ -9,6 +9,7 @@
 #include <format>
 
 #include "compiler.h"
+#include "vm.h"
 
 using namespace std;
 
@@ -32,11 +33,7 @@ public:
 
 int main() {
     std::stringstream ss;
-    ss << "\"";
-    ss << "sdfedfsdf";
-    ss << "\" == 3.3;\n";
-    ss << "\"wode\" == false;\n";
-    ss << "\"wer\" != (2 + 3.2);\n";
+    ss << "print -5+2+3/4*2-1;\n";
     antlr4::ANTLRInputStream input(ss);
     loxLexer lexer(&input);
     antlr4::CommonTokenStream tokens(&lexer);
@@ -52,7 +49,12 @@ int main() {
     }
 
     Compiler compiler;
-    compiler.compile(ctx);
+    auto [script, string_table] = compiler.compile(ctx);
+
+    Compiler::debug_print(script);
+
+    VM vm(std::move(string_table), std::move(script));
+    vm.execute();
 
     return 0;
 }

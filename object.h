@@ -1,0 +1,144 @@
+//
+// Created by zhouplus on 22/03/2024.
+//
+
+#ifndef OBJECT_H
+#define OBJECT_H
+
+#include <format>
+#include <memory>
+#include <string>
+#include <variant>
+
+#include "chunk.h"
+#include <vector>
+
+enum ObjectType {
+    OBJ_BOUND_METHOD,
+    OBJ_CLASS,
+    OBJ_CLOSURE,
+    OBJ_FUNCTION,
+    OBJ_NATIVE,
+    OBJ_STRING,
+    OBJ_UPVALUE,
+    OBJ_INSTANCE,
+};
+
+class Object : std::enable_shared_from_this<Object> {
+protected:
+    bool is_marked_;
+    ObjectType type_;
+
+public:
+    Object(): is_marked_(false), type_(OBJ_CLASS) {
+    }
+
+    ObjectType get_type() const {
+        return type_;
+    }
+};
+
+struct LoxValue {
+    ValueType type;
+    std::variant<bool, double, std::unique_ptr<Object> > data;
+
+    explicit LoxValue(double n) {
+        this->type = VAL_NUMBER;
+        this->data = n;
+    }
+
+    explicit LoxValue(bool n) {
+        this->type = VAL_BOOL;
+        this->data = n;
+    }
+
+    explicit LoxValue(std::unique_ptr<Object> obj) {
+        this->type = VAL_OBJ;
+        this->data = std::move(obj);
+    }
+
+    explicit LoxValue() {
+        this->type = VAL_NIL;
+        this->data = nullptr;
+    }
+
+    LoxValue(const LoxValue &other) = delete;
+
+    LoxValue(LoxValue &&other) noexcept
+        : type(other.type), data(std::move(other.data)) {
+    }
+
+    LoxValue &operator=(const LoxValue &other) = delete;
+
+    LoxValue &operator=(LoxValue &&other) noexcept {
+        if (this == &other)
+            return *this;
+        data = std::move(other.data);
+        other.data = nullptr;
+        return *this;
+    }
+};
+
+inline std::ostream &operator <<(std::ostream &os, const LoxValue &lv) {
+    if (std::holds_alternative<double>(lv.data)) {
+        os << std::format("{}", std::get<double>(lv.data));
+    } else if (std::holds_alternative<bool>(lv.data)) {
+        os << std::format("{}", std::get<bool>(lv.data));
+    } else {
+        // os << std::format("{}", std::get<std::unique_ptr<Object> >(lv.data)->get_type());
+    }
+    return os;
+}
+
+class ObjFunction : public Object {
+    int arity_;
+    std::vector<uint8_t> chunk_;
+    std::vector<LoxValue> value_array_;
+    std::string function_name_;
+
+public:
+    ObjFunction(): Object(), arity_(0) {
+        this->type_ = OBJ_FUNCTION;
+
+        chunk_ = std::vector<uint8_t>();
+        value_array_ = std::vector<LoxValue>();
+    }
+
+    void write_opcode(OpCode code);
+
+    void write_constant(double value);
+
+    void write_constant(bool value);
+
+    // void write_object(std::unique_ptr<Object> obj);
+
+    void write_string(std::string &&s);
+
+    int get_arity() const {
+        return this->arity_;
+    }
+
+    void debug_print_chunk() const;
+
+    const std::vector<uint8_t> &get_chunk() const;
+
+    std::vector<LoxValue> get_values();
+
+private:
+    void add_constant_opcode();
+};
+
+class ObjString : public Object {
+    std::string string_;
+
+public:
+    ObjString(): Object() {
+        this->type_ = OBJ_STRING;
+    }
+
+    explicit ObjString(std::string &&str): ObjString() {
+        this->string_ = str;
+    }
+};
+
+#endif //OBJECT_H
