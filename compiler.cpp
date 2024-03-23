@@ -262,8 +262,7 @@ void Compiler::primary(loxParser::PrimayContext *ctx) {
 
     // (expression)
     if (f1 == "(") {
-        auto exp = ctx->expression();
-        this->expression(exp);
+        this->expression(ctx->expression());
 
         return;
     }

@@ -33,7 +33,7 @@ public:
 
 int main() {
     std::stringstream ss;
-    ss << "print -5+2+3/4*2-1;\n";
+    ss << "print -5+(2+6)/4*2-1;\n";
     antlr4::ANTLRInputStream input(ss);
     loxLexer lexer(&input);
     antlr4::CommonTokenStream tokens(&lexer);
