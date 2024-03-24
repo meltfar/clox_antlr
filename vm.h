@@ -4,6 +4,7 @@
 
 #ifndef VM_H
 #define VM_H
+
 #include <deque>
 #include <unordered_map>
 #include <iostream>
@@ -24,8 +25,8 @@ class VM {
 
 public:
     VM(std::unordered_map<std::string, LoxValue> &&strings, std::shared_ptr<ObjFunction> &&script)
-        : strings_(std::move(strings)),
-          script_(std::move(script)) {
+            : strings_(std::move(strings)),
+              script_(std::move(script)) {
     }
 
     void execute();
@@ -44,15 +45,9 @@ public:
 
     static void ensure_number(const LoxValue &lox_value);
 
-    static void ensure_all_type(std::vector<const LoxValue*>&& list, ValueType vt) {
-        for (const LoxValue *vl: list) {
-            if (vl->type != vt) {
-                throw std::runtime_error(std::format("expecting all be type: {}, but found: {}", vt, vl->type));
-            }
-        }
-    }
+    static void ensure_all_type(std::vector<const LoxValue *> &&list, ValueType vt);
 
-    static bool is_equal(const LoxValue& v1, const LoxValue& v2);
+    static bool is_equal(const LoxValue &v1, const LoxValue &v2);
 };
 
 

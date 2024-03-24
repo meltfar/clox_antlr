@@ -142,7 +142,7 @@ uint8_t VM::read_byte() {
     auto &chunk = this->script_->get_chunk();
     const auto ret = chunk[this->ip_++];
     if (this->ip_ >= chunk.size()) {
-        throw std::exception("ip out of the size of chunk");
+        throw std::runtime_error("ip out of the size of chunk");
     }
 
     return ret;
@@ -159,7 +159,7 @@ bool VM::is_falsey(const LoxValue &lv) {
         return true;
     }
     if (lv.type == VAL_BOOL) {
-        return std::get<bool>(lv.data) == false;
+        return !std::get<bool>(lv.data);
     }
     if (lv.type == VAL_NUMBER) {
         return std::get<double>(lv.data) == 0;
@@ -198,10 +198,14 @@ bool VM::is_equal(const LoxValue &v1, const LoxValue &v2) {
     return false;
 }
 
-// void VM::ensure_all_type(std::vector<const LoxValue &> list, ValueType vt) {
-//     for (const LoxValue &vl: list) {
-//         if (vl.type != vt) {
-//             throw std::runtime_error(std::format("expecting all be type: {}, but found: {}", vt, vl.type));
-//         }
-//     }
-// }
+void VM::ensure_all_type(std::vector<const LoxValue *> &&list, ValueType vt) {
+    for (const LoxValue *vl: list) {
+        if (vl->type != vt) {
+//                auto err = std::format("expecting all be type: {}, but found: {}", vt, vl->type);
+            throw std::runtime_error(
+                    std::format("expecting all be type: {}, but found: {}",
+                                value_type_to_string(vt),
+                                value_type_to_string(vl->type)));
+        }
+    }
+}

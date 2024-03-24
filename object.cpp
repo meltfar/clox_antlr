@@ -104,7 +104,7 @@ void ObjFunction::debug_print_chunk() const {
             case OP_NOT:
             case OP_NEGATE:
             case OP_PRINT: {
-                std::cout << op << std::endl;
+                std::cout << op_code_to_string(op) << std::endl;
                 index += 1;
                 break;
             }

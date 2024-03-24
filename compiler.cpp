@@ -26,7 +26,7 @@ CompiledResult Compiler::compile(loxParser::ProgramContext *program) {
 
 void Compiler::declaration(loxParser::DeclarationContext *ctx) {
     if (ctx->children.size() != 1) {
-        throw std::exception("declaration should have only ONE child");
+        throw std::format_error("declaration should have only ONE child");
     }
     auto cld = ctx->children[0];
     /* class Dec */
@@ -131,7 +131,7 @@ void Compiler::term(const loxParser::TermContext *ctx) {
     // handle the first unary
     const auto factor_leftmost = dynamic_cast<loxParser::FactorContext *>(ctx->children[0]);
     if (factor_leftmost == nullptr) {
-        throw std::exception("the leftmost unary in factor should not be null");
+        throw std::format_error("the leftmost unary in factor should not be null");
     }
     this->factor(factor_leftmost);
 
@@ -158,7 +158,7 @@ void Compiler::factor(const loxParser::FactorContext *ctx) {
     // handle the first unary
     const auto unary_leftmost = dynamic_cast<loxParser::UnaryContext *>(ctx->children[0]);
     if (unary_leftmost == nullptr) {
-        throw std::exception("the leftmost unary in factor should not be null");
+        throw std::format_error("the leftmost unary in factor should not be null");
     }
     this->unary(unary_leftmost);
 
@@ -187,7 +187,7 @@ void Compiler::unary(const loxParser::UnaryContext *ctx) {
     if (ctx->children.size() > 1) {
         const auto ter = dynamic_cast<antlr4::tree::TerminalNodeImpl *>(ctx->children[index++]);
         if (ter == nullptr) {
-            throw std::exception("ter should not be nullptr");
+            throw std::format_error("ter should not be nullptr");
         }
         unary_op = ter->getText();
         std::cout << unary_op << std::endl;
