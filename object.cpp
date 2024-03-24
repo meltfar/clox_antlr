@@ -3,6 +3,7 @@
 //
 
 #include "object.h"
+#include <fmt/core.h>
 #include <iostream>
 
 void ObjFunction::write_opcode(const OpCode code) {
@@ -104,7 +105,7 @@ void ObjFunction::debug_print_chunk() const {
             case OP_NOT:
             case OP_NEGATE:
             case OP_PRINT: {
-                std::cout << op_code_to_string(op) << std::endl;
+                fmt::print("{}\n", op);
                 index += 1;
                 break;
             }

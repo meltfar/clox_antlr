@@ -3,6 +3,7 @@
 //
 
 #include "vm.h"
+#include <fmt/core.h>
 
 void VM::execute() {
     const auto top_script = this->script_;
@@ -113,7 +114,8 @@ void VM::execute() {
 
             }
 
-            default: throw std::runtime_error(std::format("unexpected op code: {}", op));
+            default:
+                throw std::runtime_error(std::format("unexpected op code: {}", op));
         }
     }
 }
@@ -201,11 +203,12 @@ bool VM::is_equal(const LoxValue &v1, const LoxValue &v2) {
 void VM::ensure_all_type(std::vector<const LoxValue *> &&list, ValueType vt) {
     for (const LoxValue *vl: list) {
         if (vl->type != vt) {
+            throw std::runtime_error(fmt::format("expecting all be type: {}, but found: {}", vt, vl->type));
 //                auto err = std::format("expecting all be type: {}, but found: {}", vt, vl->type);
-            throw std::runtime_error(
-                    std::format("expecting all be type: {}, but found: {}",
-                                value_type_to_string(vt),
-                                value_type_to_string(vl->type)));
+//            throw std::runtime_error(
+//                    std::format("expecting all be type: {}, but found: {}",
+//                                value_type_to_string(vt),
+//                                value_type_to_string(vl->type)));
         }
     }
 }

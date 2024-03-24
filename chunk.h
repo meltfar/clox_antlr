@@ -4,8 +4,9 @@
 
 #ifndef CHUNK_H
 #define CHUNK_H
-#include <format>
 
+#include <fmt/core.h>
+#include <fmt/format.h>
 #include "chunk.h"
 
 enum OpCode {
@@ -47,10 +48,10 @@ enum OpCode {
 extern std::string op_code_to_string(const OpCode &op);
 
 template<>
-struct std::formatter<OpCode> : std::formatter<std::string> {
-    auto format(const OpCode &op_code, std::format_context &ctx) const {
+struct fmt::formatter<OpCode> : fmt::formatter<std::string> {
+    auto format(const OpCode &op_code, fmt::format_context &ctx) const {
         auto name = op_code_to_string(op_code);
-        return std::formatter<std::string>::format(name, ctx);
+        return fmt::formatter<std::string>::format(name, ctx);
     }
 };
 
@@ -64,15 +65,10 @@ enum ValueType {
 extern std::string value_type_to_string(const ValueType &vt);
 
 template<>
-struct std::formatter<ValueType> {
-    constexpr auto parse(std::format_parse_context &ctx) {
-        return ctx.begin();
-    }
-
-    auto format(const ValueType &vt, std::format_context &ctx) const {
+struct fmt::formatter<ValueType> : fmt::formatter<string_view> {
+    auto format(const ValueType &vt, fmt::format_context &ctx) const {
         auto name = value_type_to_string(vt);
-        return std::format_to(ctx.out(), "{}", name);
-//        return std::formatter<std::string>::format(name, ctx);
+        return fmt::formatter<string_view>::format(name, ctx);
     }
 };
 
