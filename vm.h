@@ -40,9 +40,19 @@ public:
 
     uint8_t read_byte();
 
-    [[nodiscard]] static bool is_falsey(const LoxValue &lox_value);
+    [[nodiscard]] static bool is_falsey(const LoxValue &lv);
 
     static void ensure_number(const LoxValue &lox_value);
+
+    static void ensure_all_type(std::vector<const LoxValue*>&& list, ValueType vt) {
+        for (const LoxValue *vl: list) {
+            if (vl->type != vt) {
+                throw std::runtime_error(std::format("expecting all be type: {}, but found: {}", vt, vl->type));
+            }
+        }
+    }
+
+    static bool is_equal(const LoxValue& v1, const LoxValue& v2);
 };
 
 

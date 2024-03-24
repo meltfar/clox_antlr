@@ -23,6 +23,7 @@ void VM::execute() {
             case OP_ADD: {
                 const auto op1 = this->pop();
                 const auto op2 = this->pop();
+                // TODO: string concat
                 const auto v1 = std::get<double>(op1.data);
                 const auto v2 = std::get<double>(op2.data);
 
@@ -32,6 +33,8 @@ void VM::execute() {
             case OP_SUBTRACT: {
                 const auto op2 = this->pop();
                 const auto op1 = this->pop();
+
+                ensure_all_type({&op1, &op2}, VAL_NUMBER);
 
                 const auto v1 = std::get<double>(op1.data);
                 const auto v2 = std::get<double>(op2.data);
@@ -43,6 +46,8 @@ void VM::execute() {
                 const auto op2 = this->pop();
                 const auto op1 = this->pop();
 
+                ensure_all_type({&op1, &op2}, VAL_NUMBER);
+
                 const auto v1 = std::get<double>(op1.data);
                 const auto v2 = std::get<double>(op2.data);
 
@@ -52,6 +57,8 @@ void VM::execute() {
             case OP_DIVIDE: {
                 const auto op2 = this->pop();
                 const auto op1 = this->pop();
+
+                ensure_all_type({&op1, &op2}, VAL_NUMBER);
 
                 const auto v1 = std::get<double>(op1.data);
                 const auto v2 = std::get<double>(op2.data);
@@ -81,6 +88,29 @@ void VM::execute() {
                 ensure_number(value);
                 this->push(LoxValue(-std::get<double>(value.data)));
                 break;
+            }
+            case OP_EQUAL: {
+                const auto op2 = this->pop();
+                const auto op1 = this->pop();
+
+                this->push(LoxValue(is_equal(op1, op2)));
+
+                break;
+            }
+            case OP_GREATER: {
+                const auto op2 = this->pop();
+                const auto op1 = this->pop();
+
+                ensure_all_type({&op1, &op2}, VAL_NUMBER);
+
+                const auto v1 = std::get<double>(op1.data);
+                const auto v2 = std::get<double>(op2.data);
+
+                this->push(LoxValue(v1 > v2));
+                break;
+            }
+            case OP_LESS: {
+
             }
 
             default: throw std::runtime_error(std::format("unexpected op code: {}", op));
@@ -118,18 +148,60 @@ uint8_t VM::read_byte() {
     return ret;
 }
 
-bool VM::is_falsey(const LoxValue &lox_value) {
-    if (std::holds_alternative<double>(lox_value.data)) {
-        return std::get<double>(lox_value.data) == 0;
+bool VM::is_falsey(const LoxValue &lv) {
+    // if (std::holds_alternative<double>(lox_value.data)) {
+    //     return std::get<double>(lox_value.data) == 0;
+    // }
+    // if (std::holds_alternative<bool>(lox_value.data)) {
+    //     return std::get<bool>(lox_value.data) == false;
+    // }
+    if (lv.type == VAL_NIL) {
+        return true;
     }
-    if (std::holds_alternative<bool>(lox_value.data)) {
-        return std::get<bool>(lox_value.data) == false;
+    if (lv.type == VAL_BOOL) {
+        return std::get<bool>(lv.data) == false;
     }
+    if (lv.type == VAL_NUMBER) {
+        return std::get<double>(lv.data) == 0;
+    }
+    // empty string is already regarded as false
+    if (const auto &obj = std::get<std::unique_ptr<Object> >(lv.data); obj->get_type() == OBJ_STRING) {
+        const auto *obs = dynamic_cast<ObjString *>(obj.get());
+        return obs->get_string_view().empty();
+    }
+
     return false;
 }
 
 void VM::ensure_number(const LoxValue &lox_value) {
     if (lox_value.type != VAL_NUMBER) {
-        throw std::runtime_error(std::format("expecting a number, but found: {}", static_cast<uint8_t>(lox_value.type)));
+        throw std::runtime_error(std::format("expecting a number, but found: {}",
+                                             static_cast<uint8_t>(lox_value.type)));
     }
 }
+
+bool VM::is_equal(const LoxValue &v1, const LoxValue &v2) {
+    if (v1.type != v2.type) {
+        return false;
+    }
+
+    switch (v1.type) {
+        case VAL_NIL:
+            return true;
+        case VAL_NUMBER:
+            return std::get<double>(v1.data) == std::get<double>(v2.data);
+        case VAL_BOOL:
+            return std::get<bool>(v1.data) == std::get<bool>(v2.data);
+        case VAL_OBJ:
+            return v1.data == v2.data;
+    }
+    return false;
+}
+
+// void VM::ensure_all_type(std::vector<const LoxValue &> list, ValueType vt) {
+//     for (const LoxValue &vl: list) {
+//         if (vl.type != vt) {
+//             throw std::runtime_error(std::format("expecting all be type: {}, but found: {}", vt, vl.type));
+//         }
+//     }
+// }

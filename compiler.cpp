@@ -111,6 +111,7 @@ void Compiler::equality(loxParser::EqualityContext *ctx) {
 }
 
 void Compiler::comparison(const loxParser::ComparisonContext *ctx) {
+    // TODO: comparison and equality
     for (auto cld: ctx->children) {
         // term
         if (auto term = dynamic_cast<loxParser::TermContext *>(cld); term != nullptr) {
@@ -263,7 +264,6 @@ void Compiler::primary(loxParser::PrimayContext *ctx) {
     // (expression)
     if (f1 == "(") {
         this->expression(ctx->expression());
-
         return;
     }
 

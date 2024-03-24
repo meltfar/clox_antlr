@@ -41,7 +41,8 @@ void ObjFunction::debug_print_chunk() const {
     std::cout << "======= chunk ================" << std::endl;
     size_t index = 0;
     while (index < this->chunk_.size()) {
-        switch (this->chunk_[index]) {
+        const auto op = static_cast<OpCode>(this->chunk_[index]);
+        switch (op) {
             case OP_CONSTANT_16: {
                 std::cout << "OP_CONSTANT" << "  ";
                 const uint8_t b1 = this->chunk_[index + 1];
@@ -51,26 +52,6 @@ void ObjFunction::debug_print_chunk() const {
                 auto &cont = this->value_array_[b];
                 std::cout << cont << " (" << b << ")" << std::endl;
                 index += 3;
-                break;
-            }
-            case OP_NIL: {
-                std::cout << "OP_NIL" << std::endl;
-                index += 1;
-                break;
-            }
-            case OP_TRUE: {
-                std::cout << "OP_TRUE" << std::endl;
-                index += 1;
-                break;
-            }
-            case OP_FALSE: {
-                std::cout << "OP_FALSE" << std::endl;
-                index += 1;
-                break;
-            }
-            case OP_POP: {
-                std::cout << "OP_POP" << std::endl;
-                index += 1;
                 break;
             }
             case OP_GET_LOCAL: {
@@ -109,53 +90,21 @@ void ObjFunction::debug_print_chunk() const {
                 std::cout << "OP_SET_PROPERTY" << std::endl;
                 break;
             }
-            case OP_EQUAL: {
-                std::cout << "OP_EQUAL" << std::endl;
-                index += 1;
-                break;
-            }
-            case OP_GREATER: {
-                std::cout << "OP_GREATER" << std::endl;
-                index += 1;
-                break;
-            }
-            case OP_LESS: {
-                std::cout << "OP_LESS" << std::endl;
-                index += 1;
-                break;
-            }
-            case OP_ADD: {
-                std::cout << "OP_ADD" << std::endl;
-                index += 1;
-                break;
-            }
-            case OP_SUBTRACT: {
-                std::cout << "OP_SUBTRACT" << std::endl;
-                index += 1;
-                break;
-            }
-            case OP_MULTIPLY: {
-                std::cout << "OP_MULTIPLY" << std::endl;
-                index += 1;
-                break;
-            }
-            case OP_DIVIDE: {
-                std::cout << "OP_DIVIDE" << std::endl;
-                index += 1;
-                break;
-            }
-            case OP_NOT: {
-                std::cout << "OP_NOT" << std::endl;
-                index += 1;
-                break;
-            }
-            case OP_NEGATE: {
-                std::cout << "OP_NEGATE" << std::endl;
-                index += 1;
-                break;
-            }
+            case OP_NIL:
+            case OP_TRUE:
+            case OP_FALSE:
+            case OP_POP:
+            case OP_EQUAL:
+            case OP_GREATER:
+            case OP_LESS:
+            case OP_ADD:
+            case OP_SUBTRACT:
+            case OP_MULTIPLY:
+            case OP_DIVIDE:
+            case OP_NOT:
+            case OP_NEGATE:
             case OP_PRINT: {
-                std::cout << "OP_PRINT" << std::endl;
+                std::cout << op << std::endl;
                 index += 1;
                 break;
             }
@@ -184,7 +133,6 @@ void ObjFunction::debug_print_chunk() const {
                 break;
             }
             case OP_RETURN: {
-                std::cout << "OP_RETURN" << std::endl;
                 index += 1;
                 break;
             }
@@ -202,7 +150,7 @@ void ObjFunction::debug_print_chunk() const {
     }
 }
 
-const std::vector<uint8_t>& ObjFunction::get_chunk() const {
+const std::vector<uint8_t> &ObjFunction::get_chunk() const {
     return this->chunk_;
 }
 

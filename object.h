@@ -30,6 +30,8 @@ protected:
     ObjectType type_;
 
 public:
+    virtual ~Object() = default;
+
     Object(): is_marked_(false), type_(OBJ_CLASS) {
     }
 
@@ -47,9 +49,9 @@ struct LoxValue {
         this->data = n;
     }
 
-    explicit LoxValue(bool n) {
+    explicit LoxValue(bool b) {
         this->type = VAL_BOOL;
-        this->data = n;
+        this->data = b;
     }
 
     explicit LoxValue(std::unique_ptr<Object> obj) {
@@ -138,6 +140,10 @@ public:
 
     explicit ObjString(std::string &&str): ObjString() {
         this->string_ = str;
+    }
+
+    std::string_view get_string_view() const {
+        return this->string_;
     }
 };
 
