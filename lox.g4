@@ -37,8 +37,7 @@ statement:
 
 exprStmt: expression ';';
 
-forStmt:
-	'for' '(' (varDec | exprStmt | ';') expression? ';' expression? ';' block;
+forStmt: 'for' '(' (varDec | exprStmt | ';') expression? ';' expression? ';' ')' block;
 
 ifStmt: 'if' '(' expression ')' block ( 'else' block)?;
 

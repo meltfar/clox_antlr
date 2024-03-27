@@ -9,6 +9,8 @@
 #include <memory>
 #include <string>
 #include <variant>
+#include <iostream>
+#include <fmt/core.h>
 
 #include "chunk.h"
 #include <vector>
@@ -32,17 +34,25 @@ protected:
 public:
     virtual ~Object() = default;
 
+    virtual std::string print() = 0;
+
     Object(): is_marked_(false), type_(OBJ_CLASS) {
     }
 
     ObjectType get_type() const {
         return type_;
     }
+
+    template<class T>
+    bool is_type() {
+        auto ret = dynamic_cast<T *>(this);
+        return ret != nullptr;
+    }
 };
 
 struct LoxValue {
     ValueType type;
-    std::variant<bool, double, std::unique_ptr<Object> > data;
+    std::variant<bool, double, std::shared_ptr<Object> > data;
 
     explicit LoxValue(double n) {
         this->type = VAL_NUMBER;
@@ -54,7 +64,7 @@ struct LoxValue {
         this->data = b;
     }
 
-    explicit LoxValue(std::unique_ptr<Object> obj) {
+    explicit LoxValue(std::shared_ptr<Object> obj) {
         this->type = VAL_OBJ;
         this->data = std::move(obj);
     }
@@ -64,7 +74,7 @@ struct LoxValue {
         this->data = nullptr;
     }
 
-    LoxValue(const LoxValue &other) = delete;
+    LoxValue(const LoxValue &other) = default;
 
     LoxValue(LoxValue &&other) noexcept
         : type(other.type), data(std::move(other.data)) {
@@ -79,6 +89,52 @@ struct LoxValue {
         other.data = nullptr;
         return *this;
     }
+
+    [[nodiscard]] bool is_obj() const {
+        return this->type == VAL_OBJ;
+    }
+
+    [[nodiscard]] bool is_number() const {
+        return this->type == VAL_NUMBER;
+    }
+
+    [[nodiscard]] bool is_nil() const {
+        return this->type == VAL_NIL;
+    }
+
+    [[nodiscard]] bool is_bool() const {
+        return this->type == VAL_BOOL;
+    }
+
+    const std::unique_ptr<Object> &as_object() {
+        return std::get<std::unique_ptr<Object> >(this->data);
+    }
+};
+
+template<>
+struct fmt::formatter<LoxValue> : fmt::formatter<string_view> {
+    auto format(const LoxValue &lv, fmt::format_context &ctx) const {
+        std::string name;
+        switch (lv.type) {
+            case VAL_NIL: {
+                name = "<nil: nil>";
+                break;
+            }
+            case VAL_NUMBER: {
+                name = fmt::format("<number: {}>", std::get<double>(lv.data));
+                break;
+            }
+            case VAL_BOOL: {
+                name = fmt::format("<bool: {}>", std::get<bool>(lv.data) == true ? "true" : "false");
+                break;
+            }
+            case VAL_OBJ: {
+                name = "<obj: {}>";
+                break;
+            }
+        }
+        return fmt::formatter<string_view>::format(name, ctx);
+    }
 };
 
 inline std::ostream &operator <<(std::ostream &os, const LoxValue &lv) {
@@ -88,6 +144,7 @@ inline std::ostream &operator <<(std::ostream &os, const LoxValue &lv) {
         os << std::format("{}", std::get<bool>(lv.data));
     } else {
         // os << std::format("{}", std::get<std::unique_ptr<Object> >(lv.data)->get_type());
+        os << std::get<std::unique_ptr<Object> >(lv.data)->print();
     }
     return os;
 }
@@ -114,7 +171,9 @@ public:
 
     // void write_object(std::unique_ptr<Object> obj);
 
-    void write_string(std::string &&s);
+    uint16_t write_string(std::string &&s);
+
+    uint16_t write_string_only(std::string &&s);
 
     int get_arity() const {
         return this->arity_;
@@ -122,18 +181,40 @@ public:
 
     void debug_print_chunk() const;
 
+    void debug_print_value(size_t index) const;
+
     const std::vector<uint8_t> &get_chunk() const;
 
     std::vector<LoxValue> get_values();
 
+    std::string print() override;
+
+    const std::string &get_function_name() const {
+        return this->function_name_;
+    }
+
+    void add_constant_opcode_with_index(OpCode op, uint16_t index);
+
 private:
-    void add_constant_opcode();
+    uint16_t add_constant_opcode();
+};
+
+template<>
+struct fmt::formatter<ObjFunction> : fmt::formatter<string_view> {
+    auto format(const ObjFunction &vt, fmt::format_context &ctx) const {
+        const auto name = fmt::format("<func {} with {} arity>", vt.get_function_name(), vt.get_arity());
+        return fmt::formatter<string_view>::format(name, ctx);
+    }
 };
 
 class ObjString : public Object {
     std::string string_;
 
 public:
+    ~ObjString() override {
+        std::cout << "destructing objString: " << this->string_ << std::endl;
+    }
+
     ObjString(): Object() {
         this->type_ = OBJ_STRING;
     }
@@ -144,6 +225,20 @@ public:
 
     std::string_view get_string_view() const {
         return this->string_;
+    }
+
+    std::string &get_string() {
+        return this->string_;
+    }
+
+    std::string print() override;
+};
+
+template<>
+struct fmt::formatter<ObjString> : fmt::formatter<string_view> {
+    auto format(const ObjString &vt, fmt::format_context &ctx) const {
+        const auto name = fmt::format("<str {}>", vt.get_string_view());
+        return fmt::formatter<string_view>::format(name, ctx);
     }
 };
 

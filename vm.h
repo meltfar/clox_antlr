@@ -8,6 +8,7 @@
 #include <deque>
 #include <unordered_map>
 #include <iostream>
+#include <utility>
 
 #include "object.h"
 
@@ -24,18 +25,19 @@ class VM {
     uint64_t ip_ = 0;
 
 public:
-    VM(std::unordered_map<std::string, LoxValue> &&strings, std::shared_ptr<ObjFunction> &&script)
-            : strings_(std::move(strings)),
-              script_(std::move(script)) {
+    VM(std::unordered_map<std::string, LoxValue> strings, std::shared_ptr<ObjFunction> script)
+        : strings_(std::move(strings)),
+          script_(std::move(script)) {
     }
 
     void execute();
 
     LoxValue pop();
 
-    void push(LoxValue &&value);
+    void push(LoxValue value);
 
-    [[nodiscard]] const LoxValue &peek(uint32_t offset) const;
+    // TODO: change LoxValue to use shared_ptr underneath (obj)
+    [[nodiscard]] const LoxValue& peek(uint32_t offset) const;
 
     uint16_t read_word();
 

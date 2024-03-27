@@ -31,11 +31,19 @@ void ObjFunction::write_constant(bool value) {
 //     this->chunk_.push_back(this->value_array_.size() - 1);
 // }
 
-void ObjFunction::write_string(std::string &&s) {
+// write string to value array, then add a OPCODE CONSTANT
+uint16_t ObjFunction::write_string(std::string &&s) {
     std::unique_ptr<Object> os = std::make_unique<ObjString>(std::move(s));
     this->value_array_.emplace_back(std::move(os));
 
-    this->add_constant_opcode();
+    return this->add_constant_opcode();
+}
+
+uint16_t ObjFunction::write_string_only(std::string &&s) {
+    std::unique_ptr<Object> os = std::make_unique<ObjString>(std::move(s));
+    this->value_array_.emplace_back(std::move(os));
+
+    return this->value_array_.size() - 1;
 }
 
 void ObjFunction::debug_print_chunk() const {
@@ -46,12 +54,7 @@ void ObjFunction::debug_print_chunk() const {
         switch (op) {
             case OP_CONSTANT_16: {
                 std::cout << "OP_CONSTANT" << "  ";
-                const uint8_t b1 = this->chunk_[index + 1];
-                const uint8_t b2 = this->chunk_[index + 2];
-
-                const uint16_t b = (b1 << 8) | b2;
-                auto &cont = this->value_array_[b];
-                std::cout << cont << " (" << b << ")" << std::endl;
+                this->debug_print_value(index);
                 index += 3;
                 break;
             }
@@ -65,10 +68,14 @@ void ObjFunction::debug_print_chunk() const {
             }
             case OP_GET_GLOBAL: {
                 std::cout << "OP_GET_GLOBAL" << std::endl;
+                this->debug_print_value(index);
+                index += 3;
                 break;
             }
             case OP_DEFINE_GLOBAL: {
                 std::cout << "OP_DEFINE_GLOBAL" << std::endl;
+                this->debug_print_value(index);
+                index += 3;
                 break;
             }
             case OP_SET_GLOBAL: {
@@ -151,6 +158,17 @@ void ObjFunction::debug_print_chunk() const {
     }
 }
 
+// regard the next two bytes as index
+// then print the value in the value array with this index.
+void ObjFunction::debug_print_value(const size_t index) const {
+    const uint8_t b1 = this->chunk_[index + 1];
+    const uint8_t b2 = this->chunk_[index + 2];
+
+    const uint16_t b = (b1 << 8) | b2;
+    auto &cont = this->value_array_[b];
+    std::cout << cont << " (" << b << ")" << std::endl;
+}
+
 const std::vector<uint8_t> &ObjFunction::get_chunk() const {
     return this->chunk_;
 }
@@ -159,10 +177,26 @@ std::vector<LoxValue> ObjFunction::get_values() {
     return std::move(this->value_array_);
 }
 
-void ObjFunction::add_constant_opcode() {
+std::string ObjFunction::print() {
+    return fmt::format("<func {} with {} params>", this->function_name_, this->get_arity());
+}
+
+// write an opcode, then two bytes for index
+void ObjFunction::add_constant_opcode_with_index(const OpCode op, const uint16_t index) {
+    this->chunk_.push_back(op);
+    this->chunk_.push_back(index >> 8);
+    this->chunk_.push_back(index & 0x00FF);
+}
+
+uint16_t ObjFunction::add_constant_opcode() {
     // Format: OP_CON Index_of_value(2 bytes)
     this->chunk_.push_back(OP_CONSTANT_16);
     const uint16_t index = this->value_array_.size() - 1;
     this->chunk_.push_back(index >> 8);
     this->chunk_.push_back(index & 0x00FF);
+    return index;
+}
+
+std::string ObjString::print() {
+    return fmt::format("{}", this->string_);
 }

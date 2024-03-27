@@ -1,7 +1,3 @@
-//
-// Created by zhouplus on 19/03/2024.
-//
-
 #include "compiler.h"
 
 
@@ -28,12 +24,15 @@ void Compiler::declaration(loxParser::DeclarationContext *ctx) {
     if (ctx->children.size() != 1) {
         throw std::format_error("declaration should have only ONE child");
     }
-    auto cld = ctx->children[0];
+    const auto cld = ctx->children[0];
     /* class Dec */
     /* func Dec */
     /* var Dec */
+    if (const auto var_dec = dynamic_cast<loxParser::VarDecContext *>(cld); var_dec != nullptr) {
+        this->variable_dec(var_dec);
+    }
     /* statement */
-    if (auto stmt = dynamic_cast<loxParser::StatementContext *>(cld); stmt != nullptr) {
+    if (const auto stmt = dynamic_cast<loxParser::StatementContext *>(cld); stmt != nullptr) {
         this->statement(stmt);
     }
 }
@@ -49,7 +48,7 @@ void Compiler::statement(loxParser::StatementContext *ctx) {
     /* forStmt*/
     /* ifStmt*/
     /* printStmt*/
-    if (const auto print_stmt = dynamic_cast<loxParser::PrintStmtContext*>(cld); print_stmt != nullptr) {
+    if (const auto print_stmt = dynamic_cast<loxParser::PrintStmtContext *>(cld); print_stmt != nullptr) {
         this->expression(print_stmt->expression());
         this->function_->write_opcode(OP_PRINT);
         return;
@@ -89,38 +88,83 @@ void Compiler::logic_or(loxParser::Logic_orContext *ctx) {
 }
 
 void Compiler::logic_and(loxParser::Logic_andContext *ctx) {
-    for (auto cld: ctx->children) {
-        auto eq = dynamic_cast<loxParser::EqualityContext *>(cld);
-        this->equality(eq);
+    assert(ctx->children.size() % 2 == 1);
+
+    // handle the first eq
+    const auto leftmost = dynamic_cast<loxParser::EqualityContext *>(ctx->children[0]);
+    if (leftmost == nullptr) {
+        throw std::format_error("the leftmost in logic_and should not be null");
+    }
+    this->equality(leftmost);
+
+    // then comes with a sequence of pairs
+    for (int i = 0; i < (ctx->children.size() - 1) / 2; ++i) {
+        const auto op = dynamic_cast<antlr4::tree::TerminalNodeImpl *>(ctx->children[i * 2 + 1]);
+        const auto right = dynamic_cast<loxParser::EqualityContext *>(ctx->children[i * 2 + 2]);
+
+        this->equality(right);
+
+        auto op_str = op->getText();
+        std::cout << op_str << std::endl;
+        // TODO: logic and or needs jump
     }
 }
 
-// TODO: 测试一下，是不是 等于号或者不等于号被丢掉了，得处理一下
 void Compiler::equality(loxParser::EqualityContext *ctx) {
-    for (auto cld: ctx->children) {
-        // comparison
-        if (auto comp = dynamic_cast<loxParser::ComparisonContext *>(cld); comp != nullptr) {
-            this->comparison(comp);
-            continue;
-        }
-        // == !=
-        if (auto ter = dynamic_cast<antlr4::tree::TerminalNodeImpl *>(cld); ter != nullptr) {
-            std::cout << ter->getText() << std::endl;
+    assert(ctx->children.size() % 2 == 1);
+
+    // handle the first term
+    const auto comp_leftmost = dynamic_cast<loxParser::ComparisonContext *>(ctx->children[0]);
+    if (comp_leftmost == nullptr) {
+        throw std::format_error("the leftmost comp in eqaulity should not be null");
+    }
+    this->comparison(comp_leftmost);
+
+    // then comes with a sequence of pairs
+    for (int i = 0; i < (ctx->children.size() - 1) / 2; ++i) {
+        const auto op = dynamic_cast<antlr4::tree::TerminalNodeImpl *>(ctx->children[i * 2 + 1]);
+        const auto comp_2 = dynamic_cast<loxParser::ComparisonContext *>(ctx->children[i * 2 + 2]);
+
+        this->comparison(comp_2);
+
+        auto op_str = op->getText();
+        std::cout << op_str << std::endl;
+        this->function_->write_opcode(OP_EQUAL);
+        if (op_str == "!=") {
+            this->function_->write_opcode(OP_NOT);
         }
     }
 }
 
 void Compiler::comparison(const loxParser::ComparisonContext *ctx) {
-    // TODO: comparison and equality
-    for (auto cld: ctx->children) {
-        // term
-        if (auto term = dynamic_cast<loxParser::TermContext *>(cld); term != nullptr) {
-            this->term(term);
-            continue;
-        }
-        // < > <= >=
-        if (auto ter = dynamic_cast<antlr4::tree::TerminalNodeImpl *>(cld); ter != nullptr) {
-            std::cout << ter->getText() << std::endl;
+    assert(ctx->children.size() % 2 == 1);
+
+    // handle the first term
+    const auto term_leftmost = dynamic_cast<loxParser::TermContext *>(ctx->children[0]);
+    if (term_leftmost == nullptr) {
+        throw std::format_error("the leftmost term in comparison should not be null");
+    }
+    this->term(term_leftmost);
+
+    // then comes with a sequence of pairs
+    for (int i = 0; i < (ctx->children.size() - 1) / 2; ++i) {
+        const auto op = dynamic_cast<antlr4::tree::TerminalNodeImpl *>(ctx->children[i * 2 + 1]);
+        const auto term_2 = dynamic_cast<loxParser::TermContext *>(ctx->children[i * 2 + 2]);
+
+        this->term(term_2);
+
+        auto op_str = op->getText();
+        std::cout << op_str << std::endl;
+        if (op_str == ">") {
+            this->function_->write_opcode(OP_GREATER);
+        } else if (op_str == "<") {
+            this->function_->write_opcode(OP_LESS);
+        } else if (op_str == "<=") {
+            this->function_->write_opcode(OP_GREATER);
+            this->function_->write_opcode(OP_NOT);
+        } else {
+            this->function_->write_opcode(OP_LESS);
+            this->function_->write_opcode(OP_NOT);
         }
     }
 }
@@ -276,8 +320,30 @@ void Compiler::primary(loxParser::PrimayContext *ctx) {
     }
 
     // IDENTIFIER
-    if (auto ident = ctx->IDENTIFIER(); ident != nullptr) {
+    if (const auto ident = ctx->IDENTIFIER(); ident != nullptr) {
         auto i1 = ident->getText();
         std::cout << "primay - identifier name: " << i1 << std::endl;
+        const auto index = this->function_->write_string_only(std::move(i1));
+        this->function_->add_constant_opcode_with_index(OP_GET_GLOBAL, index);
     }
+}
+
+void Compiler::variable_dec(loxParser::VarDecContext *ctx) {
+    assert(ctx->children.size() >= 3);
+    ctx->removeLastChild(); // omit ';'
+    // 'var' IDENTIFIER ('=' expression)?
+    const auto ident = ctx->IDENTIFIER();
+    auto ident_name = ident->getText();
+
+    const auto index = this->function_->write_string_only(std::move(ident_name));
+
+    if (ctx->children.size() > 2) {
+        // initializer
+        this->expression(ctx->expression());
+    } else {
+        this->function_->write_opcode(OP_NIL);
+    }
+
+    // define global variable
+    this->function_->add_constant_opcode_with_index(OP_DEFINE_GLOBAL, index);
 }

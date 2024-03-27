@@ -22,13 +22,27 @@ void VM::execute() {
                 break;
             }
             case OP_ADD: {
-                const auto op1 = this->pop();
-                const auto op2 = this->pop();
-                // TODO: string concat
-                const auto v1 = std::get<double>(op1.data);
-                const auto v2 = std::get<double>(op2.data);
+                auto op2 = this->pop();
+                auto op1 = this->pop();
+                if (op1->type == VAL_NUMBER && op2->type == VAL_NUMBER) {
+                    const auto v1 = std::get<double>(op1->data);
+                    const auto v2 = std::get<double>(op2->data);
+                    this->push(LoxValue(v1 + v2));
+                } else if (op1->type == VAL_OBJ && op2->type == VAL_OBJ) {
+                    auto v1 = std::get<std::unique_ptr<Object> >(op1->data).get();
+                    const auto v2 = std::move(std::get<std::unique_ptr<Object> >(op2->data));
+                    if (v1->is_type<ObjString>() && v2->is_type<ObjString>()) {
+                        auto &s1 = dynamic_cast<ObjString *>(v1)->get_string();
+                        auto &s2 = dynamic_cast<ObjString *>(v2.get())->get_string();
+                        s1 += s2;
+                        this->push(std::move(op1));
+                    } else {
+                        throw std::runtime_error("invalid data type to concat or add");
+                    }
+                } else {
+                    throw std::runtime_error("invalid data type to concat or add");
+                }
 
-                this->push(LoxValue(v1 + v2));
                 break;
             }
             case OP_SUBTRACT: {
@@ -111,7 +125,52 @@ void VM::execute() {
                 break;
             }
             case OP_LESS: {
+                const auto op2 = this->pop();
+                const auto op1 = this->pop();
 
+                ensure_all_type({&op1, &op2}, VAL_NUMBER);
+
+                const auto v1 = std::get<double>(op1.data);
+                const auto v2 = std::get<double>(op2.data);
+
+                this->push(LoxValue(v1 < v2));
+                break;
+            }
+            case OP_DEFINE_GLOBAL: {
+                const auto index = this->read_word();
+                auto &&ident_name = std::move(values[index]);
+
+                auto &&value = this->pop();
+                if (!ident_name.is_obj()) {
+                    throw std::runtime_error(fmt::format("expected an object, but found: {}", ident_name));
+                }
+                auto &name_obj = ident_name.as_object();
+                if (!name_obj->is_type<ObjString>()) {
+                    throw std::runtime_error(fmt::format("The name of an ident should be string, but found: {}",
+                                                         ident_name));
+                }
+                auto osp = dynamic_cast<ObjString *>(name_obj.get());
+                this->globals_[std::move(osp->get_string())] = std::move(value);
+                break;
+            }
+            case OP_GET_GLOBAL: {
+                const auto index = this->read_word();
+                auto &&ident_name = std::move(values[index]);
+                if (!ident_name.is_obj()) {
+                    throw std::runtime_error(fmt::format("expected an object, but found: {}", ident_name));
+                }
+                auto &name_obj = ident_name.as_object();
+                if (!name_obj->is_type<ObjString>()) {
+                    throw std::runtime_error(fmt::format("The name of an ident should be string, but found: {}",
+                                                         ident_name));
+                }
+                auto osp = dynamic_cast<ObjString *>(name_obj.get());
+
+                std::string key = osp->get_string();
+                auto val = this->globals_[key];
+                this->push(val);
+
+                break;
             }
 
             default:
@@ -126,11 +185,11 @@ LoxValue VM::pop() {
     return back;
 }
 
-void VM::push(LoxValue &&value) {
+void VM::push(LoxValue value) {
     this->stack_.push_back(std::move(value));
 }
 
-const LoxValue &VM::peek(const uint32_t offset) const {
+const LoxValue&  VM::peek(const uint32_t offset) const {
     return this->stack_[this->stack_.size() - 1 - offset];
 }
 
@@ -194,8 +253,29 @@ bool VM::is_equal(const LoxValue &v1, const LoxValue &v2) {
             return std::get<double>(v1.data) == std::get<double>(v2.data);
         case VAL_BOOL:
             return std::get<bool>(v1.data) == std::get<bool>(v2.data);
-        case VAL_OBJ:
+        case VAL_OBJ: {
+            auto &obj1 = std::get<std::unique_ptr<Object> >(v1.data);
+            auto &obj2 = std::get<std::unique_ptr<Object> >(v2.data);
+            if (obj1->get_type() != obj2->get_type()) {
+                return false;
+            }
+            switch (obj1->get_type()) {
+                case OBJ_BOUND_METHOD:
+                case OBJ_CLASS:
+                case OBJ_CLOSURE:
+                case OBJ_FUNCTION:
+                case OBJ_NATIVE:
+                case OBJ_UPVALUE:
+                case OBJ_INSTANCE:
+                    throw std::runtime_error("unimplemented");
+                case OBJ_STRING: {
+                    const auto obj_str1 = dynamic_cast<ObjString *>(obj1.get());
+                    const auto obj_str2 = dynamic_cast<ObjString *>(obj2.get());
+                    return obj_str1->get_string_view() == obj_str2->get_string_view();
+                }
+            }
             return v1.data == v2.data;
+        }
     }
     return false;
 }
@@ -204,11 +284,11 @@ void VM::ensure_all_type(std::vector<const LoxValue *> &&list, ValueType vt) {
     for (const LoxValue *vl: list) {
         if (vl->type != vt) {
             throw std::runtime_error(fmt::format("expecting all be type: {}, but found: {}", vt, vl->type));
-//                auto err = std::format("expecting all be type: {}, but found: {}", vt, vl->type);
-//            throw std::runtime_error(
-//                    std::format("expecting all be type: {}, but found: {}",
-//                                value_type_to_string(vt),
-//                                value_type_to_string(vl->type)));
+            //                auto err = std::format("expecting all be type: {}, but found: {}", vt, vl->type);
+            //            throw std::runtime_error(
+            //                    std::format("expecting all be type: {}, but found: {}",
+            //                                value_type_to_string(vt),
+            //                                value_type_to_string(vl->type)));
         }
     }
 }
