@@ -8,7 +8,7 @@
 void VM::execute() {
     const auto top_script = this->script_;
     auto &chunk = top_script->get_chunk();
-    auto values = top_script->get_values();
+    auto &values = top_script->get_values();
 
     while (true) {
         switch (auto op = chunk[this->ip_++]) {
@@ -18,24 +18,24 @@ void VM::execute() {
             }
             case OP_CONSTANT_16: {
                 const auto cont_idx = this->read_word();
-                this->push(std::move(values[cont_idx]));
+                this->push(values[cont_idx]);
                 break;
             }
             case OP_ADD: {
                 auto op2 = this->pop();
                 auto op1 = this->pop();
-                if (op1->type == VAL_NUMBER && op2->type == VAL_NUMBER) {
-                    const auto v1 = std::get<double>(op1->data);
-                    const auto v2 = std::get<double>(op2->data);
+                if (op1.type == VAL_NUMBER && op2.type == VAL_NUMBER) {
+                    const auto v1 = std::get<double>(op1.data);
+                    const auto v2 = std::get<double>(op2.data);
                     this->push(LoxValue(v1 + v2));
-                } else if (op1->type == VAL_OBJ && op2->type == VAL_OBJ) {
-                    auto v1 = std::get<std::unique_ptr<Object> >(op1->data).get();
-                    const auto v2 = std::move(std::get<std::unique_ptr<Object> >(op2->data));
+                } else if (op1.type == VAL_OBJ && op2.type == VAL_OBJ) {
+                    const auto v1 = std::get<std::shared_ptr<Object> >(op1.data).get();
+                    const auto v2 = std::get<std::shared_ptr<Object> >(op2.data).get();
                     if (v1->is_type<ObjString>() && v2->is_type<ObjString>()) {
                         auto &s1 = dynamic_cast<ObjString *>(v1)->get_string();
-                        auto &s2 = dynamic_cast<ObjString *>(v2.get())->get_string();
-                        s1 += s2;
-                        this->push(std::move(op1));
+                        auto &s2 = dynamic_cast<ObjString *>(v2)->get_string();
+                        auto s3 = s1 + s2;
+                        this->push(LoxValue(std::move(s3)));
                     } else {
                         throw std::runtime_error("invalid data type to concat or add");
                     }
@@ -95,7 +95,7 @@ void VM::execute() {
             }
             case OP_PRINT: {
                 auto value = this->pop();
-                std::cout << value << std::endl;
+                std::cout << "print: " << value << std::endl;
                 break;
             }
             case OP_NEGATE: {
@@ -138,38 +138,18 @@ void VM::execute() {
             }
             case OP_DEFINE_GLOBAL: {
                 const auto index = this->read_word();
-                auto &&ident_name = std::move(values[index]);
+                auto &ident_name = values[index];
 
                 auto &&value = this->pop();
-                if (!ident_name.is_obj()) {
-                    throw std::runtime_error(fmt::format("expected an object, but found: {}", ident_name));
-                }
-                auto &name_obj = ident_name.as_object();
-                if (!name_obj->is_type<ObjString>()) {
-                    throw std::runtime_error(fmt::format("The name of an ident should be string, but found: {}",
-                                                         ident_name));
-                }
-                auto osp = dynamic_cast<ObjString *>(name_obj.get());
-                this->globals_[std::move(osp->get_string())] = std::move(value);
+                this->globals_[ident_name.as_string()] = std::move(value);
                 break;
             }
             case OP_GET_GLOBAL: {
                 const auto index = this->read_word();
-                auto &&ident_name = std::move(values[index]);
-                if (!ident_name.is_obj()) {
-                    throw std::runtime_error(fmt::format("expected an object, but found: {}", ident_name));
-                }
-                auto &name_obj = ident_name.as_object();
-                if (!name_obj->is_type<ObjString>()) {
-                    throw std::runtime_error(fmt::format("The name of an ident should be string, but found: {}",
-                                                         ident_name));
-                }
-                auto osp = dynamic_cast<ObjString *>(name_obj.get());
+                auto &ident_name = values[index];
 
-                std::string key = osp->get_string();
-                auto val = this->globals_[key];
+                auto val = this->globals_[ident_name.as_string()];
                 this->push(val);
-
                 break;
             }
 
@@ -189,7 +169,7 @@ void VM::push(LoxValue value) {
     this->stack_.push_back(std::move(value));
 }
 
-const LoxValue&  VM::peek(const uint32_t offset) const {
+const LoxValue &VM::peek(const uint32_t offset) const {
     return this->stack_[this->stack_.size() - 1 - offset];
 }
 
@@ -226,7 +206,7 @@ bool VM::is_falsey(const LoxValue &lv) {
         return std::get<double>(lv.data) == 0;
     }
     // empty string is already regarded as false
-    if (const auto &obj = std::get<std::unique_ptr<Object> >(lv.data); obj->get_type() == OBJ_STRING) {
+    if (const auto &obj = std::get<std::shared_ptr<Object> >(lv.data); obj->get_type() == OBJ_STRING) {
         const auto *obs = dynamic_cast<ObjString *>(obj.get());
         return obs->get_string_view().empty();
     }
@@ -254,8 +234,8 @@ bool VM::is_equal(const LoxValue &v1, const LoxValue &v2) {
         case VAL_BOOL:
             return std::get<bool>(v1.data) == std::get<bool>(v2.data);
         case VAL_OBJ: {
-            auto &obj1 = std::get<std::unique_ptr<Object> >(v1.data);
-            auto &obj2 = std::get<std::unique_ptr<Object> >(v2.data);
+            auto &obj1 = std::get<std::shared_ptr<Object> >(v1.data);
+            auto &obj2 = std::get<std::shared_ptr<Object> >(v2.data);
             if (obj1->get_type() != obj2->get_type()) {
                 return false;
             }

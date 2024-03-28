@@ -15,6 +15,8 @@
 #include "chunk.h"
 #include <vector>
 
+class ObjString;
+
 enum ObjectType {
     OBJ_BOUND_METHOD,
     OBJ_CLASS,
@@ -26,7 +28,7 @@ enum ObjectType {
     OBJ_INSTANCE,
 };
 
-class Object : std::enable_shared_from_this<Object> {
+class Object : public std::enable_shared_from_this<Object> {
 protected:
     bool is_marked_;
     ObjectType type_;
@@ -69,7 +71,10 @@ struct LoxValue {
         this->data = std::move(obj);
     }
 
+    explicit LoxValue(std::string&& str);
+
     explicit LoxValue() {
+        std::cout << "nil constructor called" << std::endl;
         this->type = VAL_NIL;
         this->data = nullptr;
     }
@@ -87,6 +92,7 @@ struct LoxValue {
             return *this;
         data = std::move(other.data);
         other.data = nullptr;
+        this->type = other.type;
         return *this;
     }
 
@@ -106,9 +112,11 @@ struct LoxValue {
         return this->type == VAL_BOOL;
     }
 
-    const std::unique_ptr<Object> &as_object() {
-        return std::get<std::unique_ptr<Object> >(this->data);
+    [[nodiscard]] const std::shared_ptr<Object> &as_object() const {
+        return std::get<std::shared_ptr<Object> >(this->data);
     }
+
+    std::string as_string() const;
 };
 
 template<>
@@ -129,7 +137,7 @@ struct fmt::formatter<LoxValue> : fmt::formatter<string_view> {
                 break;
             }
             case VAL_OBJ: {
-                name = "<obj: {}>";
+                name = fmt::format("<obj: {}>", std::get<std::shared_ptr<Object>>(lv.data)->print());
                 break;
             }
         }
@@ -144,7 +152,7 @@ inline std::ostream &operator <<(std::ostream &os, const LoxValue &lv) {
         os << std::format("{}", std::get<bool>(lv.data));
     } else {
         // os << std::format("{}", std::get<std::unique_ptr<Object> >(lv.data)->get_type());
-        os << std::get<std::unique_ptr<Object> >(lv.data)->print();
+        os << std::get<std::shared_ptr<Object> >(lv.data)->print();
     }
     return os;
 }
@@ -185,7 +193,7 @@ public:
 
     const std::vector<uint8_t> &get_chunk() const;
 
-    std::vector<LoxValue> get_values();
+    const std::vector<LoxValue>& get_values() const;
 
     std::string print() override;
 

@@ -1,6 +1,7 @@
 //
 // Created by zhouplus on 16/03/2024.
 //
+#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
 #include "loxLexer.h"
 #include "loxParser.h"
 #include "antlr4-runtime.h"
@@ -33,8 +34,10 @@ public:
 
 int main() {
     std::stringstream ss;
-    ss << "var idid = 3+4;\n";
+    ss << "var idid = \"abc\";\n";
+    ss << "var second = idid + \"efg\";\n";
     ss << "print idid;\n";
+    ss << "print second;\n";
     antlr4::ANTLRInputStream input(ss);
     loxLexer lexer(&input);
     antlr4::CommonTokenStream tokens(&lexer);

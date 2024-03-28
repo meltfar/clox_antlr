@@ -6,6 +6,24 @@
 #include <fmt/core.h>
 #include <iostream>
 
+LoxValue::LoxValue(std::string &&str) {
+    this->type = VAL_OBJ;
+    // auto obj = ObjString(std::move(str));
+    this->data = std::make_shared<ObjString>(std::move(str));
+}
+
+std::string LoxValue::as_string() const {
+    if (!this->is_obj()) {
+        throw std::runtime_error(fmt::format("expected an object, but found: {}", *this));
+    }
+    auto &name_obj = this->as_object();
+    if (!name_obj->is_type<ObjString>()) {
+        throw std::runtime_error(fmt::format("The name of an ident should be string, but found: {}", *this));
+    }
+    const auto osp = dynamic_cast<ObjString *>(name_obj.get());
+    return osp->get_string();
+}
+
 void ObjFunction::write_opcode(const OpCode code) {
     this->chunk_.push_back(code);
 }
@@ -33,14 +51,15 @@ void ObjFunction::write_constant(bool value) {
 
 // write string to value array, then add a OPCODE CONSTANT
 uint16_t ObjFunction::write_string(std::string &&s) {
-    std::unique_ptr<Object> os = std::make_unique<ObjString>(std::move(s));
+    std::shared_ptr<Object> os = std::make_shared<ObjString>(std::move(s));
     this->value_array_.emplace_back(std::move(os));
 
     return this->add_constant_opcode();
 }
 
+// only write to value array, don't add CONSTANT
 uint16_t ObjFunction::write_string_only(std::string &&s) {
-    std::unique_ptr<Object> os = std::make_unique<ObjString>(std::move(s));
+    std::shared_ptr<Object> os = std::make_shared<ObjString>(std::move(s));
     this->value_array_.emplace_back(std::move(os));
 
     return this->value_array_.size() - 1;
@@ -67,13 +86,13 @@ void ObjFunction::debug_print_chunk() const {
                 break;
             }
             case OP_GET_GLOBAL: {
-                std::cout << "OP_GET_GLOBAL" << std::endl;
+                std::cout << "OP_GET_GLOBAL" << "  ";
                 this->debug_print_value(index);
                 index += 3;
                 break;
             }
             case OP_DEFINE_GLOBAL: {
-                std::cout << "OP_DEFINE_GLOBAL" << std::endl;
+                std::cout << "OP_DEFINE_GLOBAL" << "  ";
                 this->debug_print_value(index);
                 index += 3;
                 break;
@@ -156,6 +175,8 @@ void ObjFunction::debug_print_chunk() const {
             default: ;
         }
     }
+
+    std::cout << "======= chunk over ===========" << std::endl;
 }
 
 // regard the next two bytes as index
@@ -173,8 +194,8 @@ const std::vector<uint8_t> &ObjFunction::get_chunk() const {
     return this->chunk_;
 }
 
-std::vector<LoxValue> ObjFunction::get_values() {
-    return std::move(this->value_array_);
+const std::vector<LoxValue> &ObjFunction::get_values() const {
+    return this->value_array_;
 }
 
 std::string ObjFunction::print() {

@@ -17,7 +17,7 @@ enum FunctionType {
 
 struct CompiledResult {
     std::shared_ptr<ObjFunction> script;
-    std::unordered_map<std::string, std::shared_ptr<LoxValue> > string_table;
+    std::unordered_map<std::string, LoxValue> string_table;
 };
 
 
@@ -25,7 +25,7 @@ class Compiler : std::enable_shared_from_this<Compiler> {
     std::shared_ptr<Compiler> parent_compiler_;
     int scope_depth_;
     std::shared_ptr<ObjFunction> function_;
-    std::unordered_map<std::string, std::shared_ptr<LoxValue> > string_table_;
+    std::unordered_map<std::string, LoxValue> string_table_;
 
 public:
     explicit Compiler(): scope_depth_(0) {

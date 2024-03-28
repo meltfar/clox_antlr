@@ -1,5 +1,6 @@
 #include "compiler.h"
-
+#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
+#include "spdlog/spdlog.h"
 
 void Compiler::debug_print(const std::shared_ptr<ObjFunction> &func) {
     func->debug_print_chunk();
@@ -63,13 +64,39 @@ void Compiler::expression(loxParser::ExpressionContext *ctx) {
     this->assignment(cld);
 }
 
+// (call '.')? IDENTIFIER '=' assignment | logic_or
 void Compiler::assignment(loxParser::AssignmentContext *ctx) {
-    auto ident = ctx->IDENTIFIER();
+    auto idx = 0;
+    // call
+    if (const auto cal = dynamic_cast<loxParser::CallContext *>(ctx->children[idx]); cal != nullptr) {
+        // call '.' IDENTIFIER '=' assignment
+        this->call_dec(cal);
+        // jump over '.'
+        idx += 2;
+    }
+
+    if (const auto ident = ctx->IDENTIFIER(); ident != nullptr) {
+        // IDENTIFIER '=' assignment
+        auto ident_name = ident->getText();
+        // jump over '='
+        idx += 2;
+        // assignment
+        const auto assig = dynamic_cast<loxParser::AssignmentContext *>(ctx->children[idx]);
+        this->assignment(assig);
+
+        // handle ident
+        SPDLOG_DEBUG("assignment - identifier: {}", ident_name);
+        const auto index= this->function_->write_string_only(std::move(ident_name));
+        this->function_->add_constant_opcode_with_index(OP_SET_GLOBAL, index);
+        // TODO: debug print, set implementation
+    } else {
+        const auto lo = dynamic_cast<loxParser::Logic_orContext *>(ctx->children[idx]);
+        // logic_or
+        this->logic_or(lo);
+        return;
+    }
+
     for (auto cld: ctx->children) {
-        // call
-        if (auto cal = dynamic_cast<loxParser::CallContext *>(cld); cal != nullptr) {
-            continue;
-        }
         // IDENTIFIER '=' assignment | logic_or;
         // auto identifier = ctx->IDENTIFIER();
         if (auto assig = dynamic_cast<loxParser::AssignmentContext *>(cld); assig != nullptr) {

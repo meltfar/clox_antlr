@@ -1,7 +1,9 @@
 [requires]
 antlr4-cppruntime/4.13.1
 fmt/10.2.1
-
+spdlog/1.13.0
 [generators]
 CMakeDeps
 CMakeToolchain
+
+# conan install . --output-folder=cmake-build-debug --build=missing --profile=debug
