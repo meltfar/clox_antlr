@@ -152,7 +152,23 @@ void VM::execute() {
                 this->push(val);
                 break;
             }
+            case OP_SET_GLOBAL: {
+                const auto index = this->read_word();
+                auto &ident_name = values[index];
 
+                auto name = ident_name.as_string();
+                // value stored on stack
+                auto&& value = this->pop();
+                if (this->globals_.contains(name)) {
+                    auto& val = this->globals_[name];
+                    val = std::move(value);
+                } else {
+                    // no global variable found
+                    throw std::runtime_error(fmt::format("can't find a global var named: {}", name));
+                }
+
+                break;
+            }
             default:
                 throw std::runtime_error(std::format("unexpected op code: {}", op));
         }

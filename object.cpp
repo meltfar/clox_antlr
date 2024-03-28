@@ -98,7 +98,9 @@ void ObjFunction::debug_print_chunk() const {
                 break;
             }
             case OP_SET_GLOBAL: {
-                std::cout << "OP_SET_GLOBAL" << std::endl;
+                std::cout << "OP_SET_GLOBAL" << "  ";
+                this->debug_print_value(index);
+                index += 3;
                 break;
             }
             case OP_GET_UPVALUE: {

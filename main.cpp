@@ -36,6 +36,7 @@ int main() {
     std::stringstream ss;
     ss << "var idid = \"abc\";\n";
     ss << "var second = idid + \"efg\";\n";
+    ss << "idid = \"newidid\";\n";
     ss << "print idid;\n";
     ss << "print second;\n";
     antlr4::ANTLRInputStream input(ss);

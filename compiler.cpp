@@ -88,7 +88,6 @@ void Compiler::assignment(loxParser::AssignmentContext *ctx) {
         SPDLOG_DEBUG("assignment - identifier: {}", ident_name);
         const auto index= this->function_->write_string_only(std::move(ident_name));
         this->function_->add_constant_opcode_with_index(OP_SET_GLOBAL, index);
-        // TODO: debug print, set implementation
     } else {
         const auto lo = dynamic_cast<loxParser::Logic_orContext *>(ctx->children[idx]);
         // logic_or
