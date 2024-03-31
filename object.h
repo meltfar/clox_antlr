@@ -85,7 +85,7 @@ struct LoxValue {
         : type(other.type), data(std::move(other.data)) {
     }
 
-    LoxValue &operator=(const LoxValue &other) = delete;
+    LoxValue &operator=(const LoxValue &other) = default;
 
     LoxValue &operator=(LoxValue &&other) noexcept {
         if (this == &other)
@@ -116,7 +116,7 @@ struct LoxValue {
         return std::get<std::shared_ptr<Object> >(this->data);
     }
 
-    std::string as_string() const;
+    [[nodiscard]] std::string as_string() const;
 };
 
 template<>
@@ -133,7 +133,7 @@ struct fmt::formatter<LoxValue> : fmt::formatter<string_view> {
                 break;
             }
             case VAL_BOOL: {
-                name = fmt::format("<bool: {}>", std::get<bool>(lv.data) == true ? "true" : "false");
+                name = fmt::format("<bool: {}>", std::get<bool>(lv.data) ? "true" : "false");
                 break;
             }
             case VAL_OBJ: {

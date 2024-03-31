@@ -78,11 +78,15 @@ void ObjFunction::debug_print_chunk() const {
                 break;
             }
             case OP_GET_LOCAL: {
-                std::cout << "OP_GET_LOCAL" << std::endl;
+                std::cout << "OP_GET_LOCAL" << "  ";
+                this->debug_print_value(index);
+                index += 3;
                 break;
             }
             case OP_SET_LOCAL: {
                 std::cout << "OP_SET_LOCAL" << std::endl;
+                this->debug_print_value(index);
+                index += 3;
                 break;
             }
             case OP_GET_GLOBAL: {

@@ -169,6 +169,20 @@ void VM::execute() {
 
                 break;
             }
+            case OP_GET_LOCAL: {
+                const auto index = this->read_word();
+                this->push(this->stack_[index]);
+                break;
+            }
+            case OP_SET_LOCAL: {
+                const auto index = this->read_word();
+                this->stack_[index] = this->peek(0);
+                break;
+            }
+            case OP_POP: {
+                this->pop();
+                break;
+            }
             default:
                 throw std::runtime_error(std::format("unexpected op code: {}", op));
         }

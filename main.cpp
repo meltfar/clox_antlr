@@ -33,12 +33,28 @@ public:
 };
 
 int main() {
+    spdlog::set_level(spdlog::level::trace);
+
     std::stringstream ss;
-    ss << "var idid = \"abc\";\n";
-    ss << "var second = idid + \"efg\";\n";
-    ss << "idid = \"newidid\";\n";
-    ss << "print idid;\n";
-    ss << "print second;\n";
+    ss << R"=(
+    var aa = 10;
+    var bb = 20;
+    {
+        var cc = aa;
+        var dd = 30;
+        print aa;
+        print bb;
+        print cc;
+        print dd;
+        dd = dd + 20;
+        print dd;
+
+        var aa = 15;
+        print aa;
+    }
+    print aa;
+    print bb;
+)=";
     antlr4::ANTLRInputStream input(ss);
     loxLexer lexer(&input);
     antlr4::CommonTokenStream tokens(&lexer);
@@ -53,8 +69,8 @@ int main() {
         return 1;
     }
 
-    Compiler compiler;
-    auto [script, string_table] = compiler.compile(ctx);
+    auto compiler = std::make_shared<Compiler>();
+    auto [script, string_table] = compiler->compile(ctx);
 
     Compiler::debug_print(script);
 
