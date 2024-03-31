@@ -38,7 +38,7 @@ public:
 
     virtual std::string print() = 0;
 
-    Object(): is_marked_(false), type_(OBJ_CLASS) {
+    Object() : is_marked_(false), type_(OBJ_CLASS) {
     }
 
     ObjectType get_type() const {
@@ -71,7 +71,7 @@ struct LoxValue {
         this->data = std::move(obj);
     }
 
-    explicit LoxValue(std::string&& str);
+    explicit LoxValue(std::string &&str);
 
     explicit LoxValue() {
         std::cout << "nil constructor called" << std::endl;
@@ -82,7 +82,7 @@ struct LoxValue {
     LoxValue(const LoxValue &other) = default;
 
     LoxValue(LoxValue &&other) noexcept
-        : type(other.type), data(std::move(other.data)) {
+            : type(other.type), data(std::move(other.data)) {
     }
 
     LoxValue &operator=(const LoxValue &other) = default;
@@ -145,7 +145,7 @@ struct fmt::formatter<LoxValue> : fmt::formatter<string_view> {
     }
 };
 
-inline std::ostream &operator <<(std::ostream &os, const LoxValue &lv) {
+inline std::ostream &operator<<(std::ostream &os, const LoxValue &lv) {
     if (std::holds_alternative<double>(lv.data)) {
         os << std::format("{}", std::get<double>(lv.data));
     } else if (std::holds_alternative<bool>(lv.data)) {
@@ -164,7 +164,7 @@ class ObjFunction : public Object {
     std::string function_name_;
 
 public:
-    ObjFunction(): Object(), arity_(0) {
+    ObjFunction() : Object(), arity_(0) {
         this->type_ = OBJ_FUNCTION;
 
         chunk_ = std::vector<uint8_t>();
@@ -193,7 +193,7 @@ public:
 
     const std::vector<uint8_t> &get_chunk() const;
 
-    const std::vector<LoxValue>& get_values() const;
+    const std::vector<LoxValue> &get_values() const;
 
     std::string print() override;
 
@@ -203,8 +203,16 @@ public:
 
     void add_constant_opcode_with_index(OpCode op, uint16_t index);
 
+    int emit_jump(OpCode opCode);
+
+    void patch_jump(int offset);
+
+    void emit_loop(uint16_t index);
+
 private:
     uint16_t add_constant_opcode();
+
+    uint16_t debug_get_word(size_t index) const;
 };
 
 template<>
@@ -223,11 +231,11 @@ public:
         std::cout << "destructing objString: " << this->string_ << std::endl;
     }
 
-    ObjString(): Object() {
+    ObjString() : Object() {
         this->type_ = OBJ_STRING;
     }
 
-    explicit ObjString(std::string &&str): ObjString() {
+    explicit ObjString(std::string &&str) : ObjString() {
         this->string_ = str;
     }
 

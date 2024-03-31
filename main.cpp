@@ -37,23 +37,13 @@ int main() {
 
     std::stringstream ss;
     ss << R"=(
-    var aa = 10;
-    var bb = 20;
-    {
-        var cc = aa;
-        var dd = 30;
-        print aa;
-        print bb;
-        print cc;
-        print dd;
-        dd = dd + 20;
-        print dd;
-
-        var aa = 15;
-        print aa;
+    var i = 10;
+    var b = false;
+    if (i < 20 and b) {
+        print "true!";
+    } else {
+        print "false";
     }
-    print aa;
-    print bb;
 )=";
     antlr4::ANTLRInputStream input(ss);
     loxLexer lexer(&input);

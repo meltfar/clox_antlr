@@ -70,6 +70,7 @@ void ObjFunction::debug_print_chunk() const {
     size_t index = 0;
     while (index < this->chunk_.size()) {
         const auto op = static_cast<OpCode>(this->chunk_[index]);
+        std::cout << fmt::format("{:04d} ", index);
         switch (op) {
             case OP_CONSTANT_16: {
                 std::cout << "OP_CONSTANT" << "  ";
@@ -79,13 +80,15 @@ void ObjFunction::debug_print_chunk() const {
             }
             case OP_GET_LOCAL: {
                 std::cout << "OP_GET_LOCAL" << "  ";
-                this->debug_print_value(index);
+                auto idx = this->debug_get_word(index);
+                std::cout << "(" << idx << ")" << std::endl;
                 index += 3;
                 break;
             }
             case OP_SET_LOCAL: {
                 std::cout << "OP_SET_LOCAL" << std::endl;
-                this->debug_print_value(index);
+                auto idx = this->debug_get_word(index);
+                std::cout << "(" << idx << ")" << std::endl;
                 index += 3;
                 break;
             }
@@ -142,15 +145,24 @@ void ObjFunction::debug_print_chunk() const {
                 break;
             }
             case OP_JUMP: {
-                std::cout << "OP_JUMP" << std::endl;
+                std::cout << "OP_JUMP" << "  ";
+                auto idx = this->debug_get_word(index);
+                std::cout << "(jump +" << idx << ")" << std::endl;
+                index += 3;
                 break;
             }
             case OP_JUMP_IF_FALSE: {
-                std::cout << "OP_JUMP_IF_FALSE" << std::endl;
+                std::cout << "OP_JUMP_IF_FALSE" << "  ";
+                auto idx = this->debug_get_word(index);
+                std::cout << "(jump +" << idx << ")" << std::endl;
+                index += 3;
                 break;
             }
             case OP_LOOP: {
-                std::cout << "OP_LOOP" << std::endl;
+                std::cout << "OP_LOOP" << "  ";
+                auto idx = this->debug_get_word(index);
+                std::cout << "(jump -" << idx << ")" << std::endl;
+                index += 3;
                 break;
             }
             case OP_CALL: {
@@ -166,6 +178,7 @@ void ObjFunction::debug_print_chunk() const {
                 break;
             }
             case OP_RETURN: {
+                std::cout << "OP_RETURN" << std::endl;
                 index += 1;
                 break;
             }
@@ -178,7 +191,7 @@ void ObjFunction::debug_print_chunk() const {
                 break;
             }
 
-            default: ;
+            default:;
         }
     }
 
@@ -194,6 +207,15 @@ void ObjFunction::debug_print_value(const size_t index) const {
     const uint16_t b = (b1 << 8) | b2;
     auto &cont = this->value_array_[b];
     std::cout << cont << " (" << b << ")" << std::endl;
+}
+
+uint16_t ObjFunction::debug_get_word(const size_t index) const {
+    const uint8_t b1 = this->chunk_[index + 1];
+    const uint8_t b2 = this->chunk_[index + 2];
+
+    const uint16_t b = (b1 << 8) | b2;
+
+    return b;
 }
 
 const std::vector<uint8_t> &ObjFunction::get_chunk() const {
@@ -222,6 +244,34 @@ uint16_t ObjFunction::add_constant_opcode() {
     this->chunk_.push_back(index >> 8);
     this->chunk_.push_back(index & 0x00FF);
     return index;
+}
+
+int ObjFunction::emit_jump(OpCode opCode) {
+    this->add_constant_opcode_with_index(opCode, 0xFFFF);
+    return this->chunk_.size() - 2;
+}
+
+void ObjFunction::patch_jump(int offset) {
+    int jump = this->chunk_.size() - offset - 2;
+
+    if (jump > UINT16_MAX) {
+        throw std::runtime_error("too much code to jump over");
+    }
+
+    this->chunk_[offset] = (jump >> 8) & 0xFF;
+    this->chunk_[offset + 1] = jump & 0xFF;
+}
+
+void ObjFunction::emit_loop(uint16_t index) {
+    this->write_opcode(OP_LOOP);
+
+    int offset = this->chunk_.size() - index + 2;
+    if (offset > UINT16_MAX) {
+        throw std::runtime_error("loop body is too large");
+    }
+
+    this->chunk_.push_back((offset >> 8) & 0xFF);
+    this->chunk_.push_back(offset & 0xFF);
 }
 
 std::string ObjString::print() {

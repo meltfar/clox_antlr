@@ -14,6 +14,7 @@ void VM::execute() {
         switch (auto op = chunk[this->ip_++]) {
             case OP_RETURN: {
                 // if there is still a call frame, we return to it.
+                // TODO: pop a value and return it.
                 return;
             }
             case OP_CONSTANT_16: {
@@ -158,10 +159,9 @@ void VM::execute() {
 
                 auto name = ident_name.as_string();
                 // value stored on stack
-                auto&& value = this->pop();
                 if (this->globals_.contains(name)) {
-                    auto& val = this->globals_[name];
-                    val = std::move(value);
+                    auto &val = this->globals_[name];
+                    val = this->peek(0);
                 } else {
                     // no global variable found
                     throw std::runtime_error(fmt::format("can't find a global var named: {}", name));
@@ -181,6 +181,23 @@ void VM::execute() {
             }
             case OP_POP: {
                 this->pop();
+                break;
+            }
+            case OP_JUMP_IF_FALSE: {
+                const auto offset = this->read_word();
+                if (VM::is_falsey(this->peek(0))) {
+                    this->ip_ += offset;
+                }
+                break;
+            }
+            case OP_JUMP: {
+                const auto offset = this->read_word();
+                this->ip_ += offset;
+                break;
+            }
+            case OP_LOOP: {
+                const auto offset = this->read_word();
+                this->ip_ -= offset;
                 break;
             }
             default:

@@ -11,6 +11,7 @@ CompiledResult Compiler::compile(loxParser::ProgramContext *program) {
     }
 
     // final return
+    this->function_->write_opcode(OP_NIL);
     this->function_->write_opcode(OP_RETURN);
 
     auto cr = CompiledResult{};
@@ -49,6 +50,10 @@ void Compiler::statement(const loxParser::StatementContext *ctx) {
     }
     /* forStmt*/
     /* ifStmt*/
+    if (const auto if_stmt = dynamic_cast<loxParser::IfStmtContext*>(cld); if_stmt != nullptr) {
+        this->if_dec(if_stmt);
+        return;
+    }
     /* printStmt*/
     if (const auto print_stmt = dynamic_cast<loxParser::PrintStmtContext *>(cld); print_stmt != nullptr) {
         this->expression(print_stmt->expression());
@@ -56,7 +61,15 @@ void Compiler::statement(const loxParser::StatementContext *ctx) {
         return;
     }
     /* returnStmt*/
+    if (const auto return_stmt = dynamic_cast<loxParser::ReturnStmtContext*>(cld); return_stmt != nullptr) {
+        this->return_stmt(return_stmt);
+        return;
+    }
     /* whileStmt*/
+    if (const auto while_stmt = dynamic_cast<loxParser::WhileStmtContext*>(cld); while_stmt != nullptr) {
+        this->while_stmt(while_stmt);
+        return;
+    }
     /* block*/
     if (const auto block = dynamic_cast<loxParser::BlockContext *>(cld); block != nullptr) {
         auto sub_compiler = Compiler(this);
@@ -104,9 +117,24 @@ void Compiler::assignment(loxParser::AssignmentContext *ctx) {
 }
 
 void Compiler::logic_or(loxParser::Logic_orContext *ctx) {
-    for (auto cld: ctx->children) {
-        auto la = dynamic_cast<loxParser::Logic_andContext *>(cld);
-        this->logic_and(la);
+    assert(ctx->children.size() % 2 == 1);
+    const auto leftmost = dynamic_cast<loxParser::Logic_andContext*>(ctx->children[0]);
+    if (leftmost == nullptr) {
+        throw std::format_error("the leftmost in logic_or should not be null");
+    }
+    this->logic_and(leftmost);
+
+    // then comes with a sequence of pairs
+    for (int i = 0; i < (ctx->children.size() - 1) / 2; ++i) {
+        int else_jump = this->function_->emit_jump(OP_JUMP_IF_FALSE);
+        int end_jump = this->function_->emit_jump(OP_JUMP);
+        const auto right = dynamic_cast<loxParser::Logic_andContext *>(ctx->children[i * 2 + 2]);
+
+        this->function_->patch_jump(else_jump);
+        this->function_->write_opcode(OP_POP);
+
+        this->logic_and(right);
+        this->function_->patch_jump(end_jump);
     }
 }
 
@@ -122,14 +150,15 @@ void Compiler::logic_and(loxParser::Logic_andContext *ctx) {
 
     // then comes with a sequence of pairs
     for (int i = 0; i < (ctx->children.size() - 1) / 2; ++i) {
-        const auto op = dynamic_cast<antlr4::tree::TerminalNodeImpl *>(ctx->children[i * 2 + 1]);
+        int end_jump = this->function_->emit_jump(OP_JUMP_IF_FALSE);
+        //const auto op = dynamic_cast<antlr4::tree::TerminalNodeImpl *>(ctx->children[i * 2 + 1]);
         const auto right = dynamic_cast<loxParser::EqualityContext *>(ctx->children[i * 2 + 2]);
+
+        this->function_->write_opcode(OP_POP);
 
         this->equality(right);
 
-        auto op_str = op->getText();
-        std::cout << op_str << std::endl;
-        // TODO: logic and or needs jump
+        this->function_->patch_jump(end_jump);
     }
 }
 
@@ -489,4 +518,55 @@ void Compiler::handle_variable(std::string ident_name, const bool is_set) {
     }
 
     this->function_->add_constant_opcode_with_index(opcode, index);
+}
+
+void Compiler::if_dec(loxParser::IfStmtContext *ctx) {
+    // 'if' '(' expression ')' block ( 'else' block)?
+    assert(ctx->children.size() >= 5);
+    // expression
+    this->expression(ctx->expression());
+    // add jump tag
+    auto jump_patch_pos = this->function_->emit_jump(OP_JUMP_IF_FALSE);
+    this->function_->write_opcode(OP_POP);
+    // block
+    this->block_dec(ctx->block(0));
+    // jumping tag for jump over "else" branch
+    auto jump_over_else = this->function_->emit_jump(OP_JUMP);
+    // patch jump
+    this->function_->patch_jump(jump_patch_pos);
+    this->function_->write_opcode(OP_POP);
+    // else
+    if (ctx->children.size() > 5) {
+        // has an else branch
+        this->block_dec(ctx->block(1));
+    }
+    this->function_->patch_jump(jump_over_else);
+}
+
+void Compiler::return_stmt(loxParser::ReturnStmtContext *ctx) {
+    if (this->type_ == TYPE_SCRIPT) {
+        throw std::format_error("cannot return from global context");
+    }
+
+    if (ctx->children.size() > 2) {
+        this->expression(ctx->expression());
+    } else {
+        this->function_->write_opcode(OP_NIL);
+    }
+    this->function_->write_opcode(OP_RETURN);
+}
+
+void Compiler::while_stmt(loxParser::WhileStmtContext *ctx) {
+    auto loop_start = this->function_->get_chunk().size();
+    // loop condition
+    this->expression(ctx->expression());
+
+    auto exit_jump = this->function_->emit_jump(OP_JUMP_IF_FALSE);
+    this->function_->write_opcode(OP_POP);
+    this->block_dec(ctx->block());
+
+    this->function_->emit_loop(loop_start);
+
+    this->function_->patch_jump(exit_jump);
+    this->function_->write_opcode(OP_POP);
 }

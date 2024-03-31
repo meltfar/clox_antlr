@@ -34,9 +34,10 @@ class Compiler : std::enable_shared_from_this<Compiler> {
     std::shared_ptr<ObjFunction> function_;
     std::unordered_map<std::string, LoxValue> string_table_;
     std::vector<Local> locals_;
+    FunctionType type_;
 
 public:
-    explicit Compiler(): scope_depth_(0) {
+    explicit Compiler(): scope_depth_(0), type_(TYPE_SCRIPT) {
         parent_compiler_ = nullptr;
         function_ = std::make_shared<ObjFunction>();
         this->locals_ = std::vector<Local>();
@@ -110,6 +111,12 @@ public:
     void variable_dec(loxParser::VarDecContext *ctx);
 
     void block_dec(loxParser::BlockContext* ctx);
+
+    void if_dec(loxParser::IfStmtContext* ctx);
+
+    void return_stmt(loxParser::ReturnStmtContext* ctx);
+
+    void while_stmt(loxParser::WhileStmtContext* ctx);
 
     void enter_scope();
 
