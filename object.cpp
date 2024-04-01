@@ -24,6 +24,17 @@ std::string LoxValue::as_string() const {
     return osp->get_string();
 }
 
+std::shared_ptr<ObjFunction> &LoxValue::as_function() const {
+    if (!this->is_obj()) {
+        throw std::runtime_error(fmt::format("expected an object, but found: {}", *this));
+    }
+    auto &name_obj = this->as_object();
+    if (!name_obj->is_type<ObjFunction>()) {
+        throw std::runtime_error(fmt::format("The name of an ident should be function, but found: {}", *this));
+    }
+    return (std::shared_ptr<ObjFunction> &) name_obj;
+}
+
 void ObjFunction::write_opcode(const OpCode code) {
     this->chunk_.push_back(code);
 }
@@ -86,7 +97,7 @@ void ObjFunction::debug_print_chunk() const {
                 break;
             }
             case OP_SET_LOCAL: {
-                std::cout << "OP_SET_LOCAL" << std::endl;
+                std::cout << "OP_SET_LOCAL" << "  ";
                 auto idx = this->debug_get_word(index);
                 std::cout << "(" << idx << ")" << std::endl;
                 index += 3;
@@ -166,7 +177,10 @@ void ObjFunction::debug_print_chunk() const {
                 break;
             }
             case OP_CALL: {
-                std::cout << "OP_CALL" << std::endl;
+                std::cout << "OP_CALL" << "  ";
+                auto arg_count = this->debug_get_word(index);
+                std::cout << "(with " << arg_count << " args)" << std::endl;
+                index += 3;
                 break;
             }
             case OP_CLOSURE: {
@@ -276,4 +290,9 @@ void ObjFunction::emit_loop(uint16_t index) {
 
 std::string ObjString::print() {
     return fmt::format("{}", this->string_);
+}
+
+void ObjFunction::write_function(std::shared_ptr<ObjFunction> func) {
+    this->value_array_.emplace_back(std::move(func));
+    this->add_constant_opcode();
 }

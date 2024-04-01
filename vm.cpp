@@ -4,18 +4,29 @@
 
 #include "vm.h"
 #include <fmt/core.h>
+#include <spdlog/spdlog.h>
 
 void VM::execute() {
-    const auto top_script = this->script_;
-    auto &chunk = top_script->get_chunk();
-    auto &values = top_script->get_values();
+    CallFrame* frame = &this->call_frames_[this->call_frames_.size() - 1];
 
     while (true) {
-        switch (auto op = chunk[this->ip_++]) {
+        auto &chunk = frame->function->get_chunk();
+        auto &values = frame->function->get_values();
+        switch (auto op = chunk[frame->ip++]) {
             case OP_RETURN: {
                 // if there is still a call frame, we return to it.
-                // TODO: pop a value and return it.
-                return;
+                auto result = this->pop();
+                this->call_frames_.pop_back();
+                if (this->call_frames_.empty()) {
+                    this->pop();
+                    SPDLOG_DEBUG("execute completed, exiting...");
+                    return;
+                }
+
+                this->stack_top_ = frame->slots;
+                this->push(result);
+                frame = &this->call_frames_[this->call_frames_.size() - 1];
+                break;
             }
             case OP_CONSTANT_16: {
                 const auto cont_idx = this->read_word();
@@ -171,12 +182,13 @@ void VM::execute() {
             }
             case OP_GET_LOCAL: {
                 const auto index = this->read_word();
-                this->push(this->stack_[index]);
+                this->push(frame->slots[index]);
                 break;
             }
             case OP_SET_LOCAL: {
                 const auto index = this->read_word();
-                this->stack_[index] = this->peek(0);
+//                this->stack_[index] = this->peek(0);
+                frame->slots[index] = this->peek(0);
                 break;
             }
             case OP_POP: {
@@ -186,18 +198,28 @@ void VM::execute() {
             case OP_JUMP_IF_FALSE: {
                 const auto offset = this->read_word();
                 if (VM::is_falsey(this->peek(0))) {
-                    this->ip_ += offset;
+                    frame->ip += offset;
                 }
                 break;
             }
             case OP_JUMP: {
                 const auto offset = this->read_word();
-                this->ip_ += offset;
+                frame->ip += offset;
                 break;
             }
             case OP_LOOP: {
                 const auto offset = this->read_word();
-                this->ip_ -= offset;
+                frame->ip -= offset;
+                break;
+            }
+            case OP_CALL: {
+                const auto arg_count = this->read_word();
+                if (!this->call_on_value(arg_count)) {
+                    throw std::runtime_error("can only call functions and classes");
+                }
+                // after call on value, the function will be "called", so it safe to get the latest frame
+                // this is what magic happens: switch to the frame of the new function, and start to exec from ip 0.
+                frame = &this->call_frames_[this->call_frames_.size() - 1];
                 break;
             }
             default:
@@ -207,17 +229,17 @@ void VM::execute() {
 }
 
 LoxValue VM::pop() {
-    auto back = std::move(this->stack_.back());
-    this->stack_.pop_back();
-    return back;
+    this->stack_top_ -= 1;
+    return *this->stack_top_;
 }
 
 void VM::push(LoxValue value) {
-    this->stack_.push_back(std::move(value));
+    *this->stack_top_ = std::move(value);
+    this->stack_top_ += 1;
 }
 
 const LoxValue &VM::peek(const uint32_t offset) const {
-    return this->stack_[this->stack_.size() - 1 - offset];
+    return *(this->stack_top_ - 1 - offset);
 }
 
 uint16_t VM::read_word() {
@@ -227,9 +249,10 @@ uint16_t VM::read_word() {
 }
 
 uint8_t VM::read_byte() {
-    auto &chunk = this->script_->get_chunk();
-    const auto ret = chunk[this->ip_++];
-    if (this->ip_ >= chunk.size()) {
+    auto &frame = this->call_frames_[this->call_frames_.size() - 1];
+    auto &chunk = frame.function->get_chunk();
+    const auto ret = chunk[frame.ip++];
+    if (frame.ip >= chunk.size()) {
         throw std::runtime_error("ip out of the size of chunk");
     }
 
@@ -318,4 +341,43 @@ void VM::ensure_all_type(std::vector<const LoxValue *> &&list, ValueType vt) {
             //                                value_type_to_string(vl->type)));
         }
     }
+}
+
+bool VM::call_on_value(int arg_count) {
+    auto callee = this->peek(arg_count);
+    if (callee.is_obj()) {
+        switch (callee.as_object()->get_type()) {
+            case OBJ_BOUND_METHOD:
+                break;
+            case OBJ_CLASS:
+                break;
+            case OBJ_CLOSURE:
+                break;
+            case OBJ_FUNCTION:
+                this->call(callee.as_function(), arg_count);
+                return true;
+            case OBJ_NATIVE:
+                break;
+            case OBJ_STRING:
+                break;
+            case OBJ_UPVALUE:
+                break;
+            case OBJ_INSTANCE:
+                break;
+        }
+    }
+    return false;
+}
+
+void VM::call(const std::shared_ptr<ObjFunction>& function, int arg_count) {
+    if (function->get_arity() != arg_count) {
+        throw std::runtime_error(fmt::format("expected {} arguments, but found {}", function->get_arity(), arg_count));
+    }
+
+    if (this->call_frames_.size() >= FRAMES_MAX) {
+        throw std::runtime_error("stack overflow");
+    }
+    //
+    CallFrame cf = CallFrame{function, 0, this->stack_top_ - arg_count - 1};
+    this->call_frames_.push_back(cf);
 }

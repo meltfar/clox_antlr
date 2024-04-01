@@ -17,8 +17,9 @@ public:
     T__14 = 15, T__15 = 16, T__16 = 17, T__17 = 18, T__18 = 19, T__19 = 20, 
     T__20 = 21, T__21 = 22, T__22 = 23, T__23 = 24, T__24 = 25, T__25 = 26, 
     T__26 = 27, T__27 = 28, T__28 = 29, T__29 = 30, T__30 = 31, T__31 = 32, 
-    T__32 = 33, T__33 = 34, T__34 = 35, WHITESPACE = 36, NEWLINE = 37, NUMBER = 38, 
-    STRING_LITERAL = 39, IDENTIFIER = 40, ALPHA = 41, DIGIT = 42
+    T__32 = 33, T__33 = 34, T__34 = 35, T__35 = 36, T__36 = 37, WHITESPACE = 38, 
+    NEWLINE = 39, NUMBER = 40, STRING_LITERAL = 41, IDENTIFIER = 42, ALPHA = 43, 
+    DIGIT = 44
   };
 
   explicit loxLexer(antlr4::CharStream *input);

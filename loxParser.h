@@ -17,18 +17,20 @@ public:
     T__14 = 15, T__15 = 16, T__16 = 17, T__17 = 18, T__18 = 19, T__19 = 20, 
     T__20 = 21, T__21 = 22, T__22 = 23, T__23 = 24, T__24 = 25, T__25 = 26, 
     T__26 = 27, T__27 = 28, T__28 = 29, T__29 = 30, T__30 = 31, T__31 = 32, 
-    T__32 = 33, T__33 = 34, T__34 = 35, WHITESPACE = 36, NEWLINE = 37, NUMBER = 38, 
-    STRING_LITERAL = 39, IDENTIFIER = 40, ALPHA = 41, DIGIT = 42
+    T__32 = 33, T__33 = 34, T__34 = 35, T__35 = 36, T__36 = 37, WHITESPACE = 38, 
+    NEWLINE = 39, NUMBER = 40, STRING_LITERAL = 41, IDENTIFIER = 42, ALPHA = 43, 
+    DIGIT = 44
   };
 
   enum {
     RuleProgram = 0, RuleDeclaration = 1, RuleClassDec = 2, RuleFunDec = 3, 
     RuleVarDec = 4, RuleStatement = 5, RuleExprStmt = 6, RuleForStmt = 7, 
     RuleIfStmt = 8, RulePrintStmt = 9, RuleReturnStmt = 10, RuleWhileStmt = 11, 
-    RuleBlock = 12, RuleExpression = 13, RuleAssignment = 14, RuleLogic_or = 15, 
-    RuleLogic_and = 16, RuleEquality = 17, RuleComparison = 18, RuleTerm = 19, 
-    RuleFactor = 20, RuleUnary = 21, RuleCall = 22, RulePrimay = 23, RuleFunction = 24, 
-    RuleParameters = 25, RuleArguments = 26
+    RuleBreakStmt = 12, RuleContinueStmt = 13, RuleBlock = 14, RuleExpression = 15, 
+    RuleAssignment = 16, RuleLogic_or = 17, RuleLogic_and = 18, RuleEquality = 19, 
+    RuleComparison = 20, RuleTerm = 21, RuleFactor = 22, RuleUnary = 23, 
+    RuleCall = 24, RulePrimay = 25, RuleFunction = 26, RuleParameters = 27, 
+    RuleArguments = 28
   };
 
   explicit loxParser(antlr4::TokenStream *input);
@@ -60,6 +62,8 @@ public:
   class PrintStmtContext;
   class ReturnStmtContext;
   class WhileStmtContext;
+  class BreakStmtContext;
+  class ContinueStmtContext;
   class BlockContext;
   class ExpressionContext;
   class AssignmentContext;
@@ -150,6 +154,8 @@ public:
     PrintStmtContext *printStmt();
     ReturnStmtContext *returnStmt();
     WhileStmtContext *whileStmt();
+    BreakStmtContext *breakStmt();
+    ContinueStmtContext *continueStmt();
     BlockContext *block();
 
    
@@ -229,6 +235,26 @@ public:
   };
 
   WhileStmtContext* whileStmt();
+
+  class  BreakStmtContext : public antlr4::ParserRuleContext {
+  public:
+    BreakStmtContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+
+   
+  };
+
+  BreakStmtContext* breakStmt();
+
+  class  ContinueStmtContext : public antlr4::ParserRuleContext {
+  public:
+    ContinueStmtContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+
+   
+  };
+
+  ContinueStmtContext* continueStmt();
 
   class  BlockContext : public antlr4::ParserRuleContext {
   public:

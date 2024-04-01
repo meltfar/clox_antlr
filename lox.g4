@@ -33,6 +33,8 @@ statement:
 	| printStmt
 	| returnStmt
 	| whileStmt
+	| breakStmt
+	| continueStmt
 	| block;
 
 exprStmt: expression ';';
@@ -44,6 +46,8 @@ ifStmt: 'if' '(' expression ')' block ( 'else' block)?;
 printStmt: 'print' expression ';';
 returnStmt: 'return' expression? ';';
 whileStmt: 'while' '(' expression ')' block;
+breakStmt: 'break' ';';
+continueStmt: 'continue' ';';
 block: '{' declaration* '}';
 
 expression: assignment;

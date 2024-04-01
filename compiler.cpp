@@ -28,13 +28,19 @@ void Compiler::declaration(loxParser::DeclarationContext *ctx) {
     const auto cld = ctx->children[0];
     /* class Dec */
     /* func Dec */
+    if (const auto func_dec = dynamic_cast<loxParser::FunDecContext *>(cld); func_dec != nullptr) {
+        this->func_dec(func_dec->function());
+        return;
+    }
     /* var Dec */
     if (const auto var_dec = dynamic_cast<loxParser::VarDecContext *>(cld); var_dec != nullptr) {
         this->variable_dec(var_dec);
+        return;
     }
     /* statement */
     if (const auto stmt = dynamic_cast<loxParser::StatementContext *>(cld); stmt != nullptr) {
         this->statement(stmt);
+        return;
     }
 }
 
@@ -50,7 +56,7 @@ void Compiler::statement(const loxParser::StatementContext *ctx) {
     }
     /* forStmt*/
     /* ifStmt*/
-    if (const auto if_stmt = dynamic_cast<loxParser::IfStmtContext*>(cld); if_stmt != nullptr) {
+    if (const auto if_stmt = dynamic_cast<loxParser::IfStmtContext *>(cld); if_stmt != nullptr) {
         this->if_dec(if_stmt);
         return;
     }
@@ -61,19 +67,20 @@ void Compiler::statement(const loxParser::StatementContext *ctx) {
         return;
     }
     /* returnStmt*/
-    if (const auto return_stmt = dynamic_cast<loxParser::ReturnStmtContext*>(cld); return_stmt != nullptr) {
+    if (const auto return_stmt = dynamic_cast<loxParser::ReturnStmtContext *>(cld); return_stmt != nullptr) {
         this->return_stmt(return_stmt);
         return;
     }
     /* whileStmt*/
-    if (const auto while_stmt = dynamic_cast<loxParser::WhileStmtContext*>(cld); while_stmt != nullptr) {
+    if (const auto while_stmt = dynamic_cast<loxParser::WhileStmtContext *>(cld); while_stmt != nullptr) {
         this->while_stmt(while_stmt);
         return;
     }
     /* block*/
     if (const auto block = dynamic_cast<loxParser::BlockContext *>(cld); block != nullptr) {
-        auto sub_compiler = Compiler(this);
-        sub_compiler.block_dec(block);
+//        auto sub_compiler = Compiler(this);
+//        sub_compiler.block_dec(block);
+        this->block_dec(block);
         // this->enter_scope();
         // this->block_dec(block);
         // this->exit_scope();
@@ -118,7 +125,7 @@ void Compiler::assignment(loxParser::AssignmentContext *ctx) {
 
 void Compiler::logic_or(loxParser::Logic_orContext *ctx) {
     assert(ctx->children.size() % 2 == 1);
-    const auto leftmost = dynamic_cast<loxParser::Logic_andContext*>(ctx->children[0]);
+    const auto leftmost = dynamic_cast<loxParser::Logic_andContext *>(ctx->children[0]);
     if (leftmost == nullptr) {
         throw std::format_error("the leftmost in logic_or should not be null");
     }
@@ -307,16 +314,24 @@ void Compiler::unary(const loxParser::UnaryContext *ctx) {
 }
 
 void Compiler::call_dec(loxParser::CallContext *ctx) {
-    for (auto cld: ctx->children) {
-        // primary
-        if (auto pri = dynamic_cast<loxParser::PrimayContext *>(cld); pri != nullptr) {
-            this->primary(pri);
-            continue;
-        }
-
-        // arguments
-        // identifier
+    // primary
+    this->primary(ctx->primay());
+    if (ctx->children.size() == 1) {
+        return;
     }
+    int arg_count = 0;
+    // arguments
+    auto args = ctx->arguments(0);
+    if (args != nullptr) {
+        arg_count = args->expression().size();
+        this->arguments_dec(args);
+    } else {
+        // identifier
+
+    }
+
+    // finally, a call opcode
+    this->function_->add_constant_opcode_with_index(OP_CALL, arg_count);
 }
 
 void Compiler::primary(loxParser::PrimayContext *ctx) {
@@ -379,6 +394,46 @@ void Compiler::primary(loxParser::PrimayContext *ctx) {
     }
 }
 
+// actually, it just inserts the variable name into value array for global
+// or push a new local for depth > 0
+int Compiler::parse_variable(std::string ident_name) {
+    auto index = -1;
+    if (this->scope_depth_ == 0) {
+        // global
+        index = this->function_->write_string_only(std::move(ident_name));
+    } else {
+        // inside scope
+        if (std::ranges::count_if(this->locals_, [&](const Local &l) { return l.name == ident_name; }) > 0) {
+            throw std::runtime_error(fmt::format("duplicated variable declaration for: {}", ident_name));
+        }
+        // all locals need to be popped from stack,
+        // so I put this to the destructor of the Compiler
+        // we give the scope_depth as -1 to tag it as "uninitialized"
+        this->locals_.push_back(Local{std::move(ident_name), -1, false});
+    }
+
+    return index;
+}
+
+void Compiler::mark_last_local_variable_as_initialized() {
+    if (this->scope_depth_ == 0) {
+        return;
+    }
+    // mark the local var as "initialized"
+    this->locals_[this->locals_.size() - 1].scope_depth = this->scope_depth_;
+}
+
+// add a DEFINE_GLOBAL opcode for global
+// or just mark as initialed for local
+void Compiler::define_variable(int index) {
+    if (this->scope_depth_ == 0) {
+        // define global variable
+        this->function_->add_constant_opcode_with_index(OP_DEFINE_GLOBAL, index);
+    } else {
+        this->mark_last_local_variable_as_initialized();
+    }
+}
+
 void Compiler::variable_dec(loxParser::VarDecContext *ctx) {
     assert(ctx->children.size() >= 3);
     ctx->removeLastChild(); // omit ';'
@@ -411,20 +466,7 @@ void Compiler::variable_dec(loxParser::VarDecContext *ctx) {
             return identifierConstant(&parser.previous);
         }
      **/
-    auto index = -1;
-    if (this->scope_depth_ == 0) {
-        // global
-        index = this->function_->write_string_only(std::move(ident_name));
-    } else {
-        // inside scope
-        if (std::ranges::count_if(this->locals_, [&](const Local &l) { return l.name == ident_name; }) > 0) {
-            throw std::runtime_error(fmt::format("duplicated variable declaration for: {}", ident_name));
-        }
-        // all locals need to be popped from stack,
-        // so I put this to the destructor of the Compiler
-        // we give the scope_depth as -1 to tag it as "uninitialized"
-        this->locals_.push_back(Local{std::move(ident_name), -1, false});
-    }
+    auto index = this->parse_variable(std::move(ident_name));
 
     if (ctx->children.size() > 2) {
         // initializer
@@ -443,33 +485,20 @@ void Compiler::variable_dec(loxParser::VarDecContext *ctx) {
         }
      */
     // only need to use string to define var for global.
-    if (this->scope_depth_ == 0) {
-        // define global variable
-        this->function_->add_constant_opcode_with_index(OP_DEFINE_GLOBAL, index);
-    } else {
-        // mark the local var as "initialized"
-        this->locals_[this->locals_.size() - 1].scope_depth = this->scope_depth_;
-    }
+    this->define_variable(index);
 }
 
 void Compiler::block_dec(loxParser::BlockContext *ctx) {
     assert(ctx->children.size() >= 2);
     // skip '}'
     ctx->removeLastChild();
+    auto sub_compiler = Compiler(this);
     // skip '{'
     for (auto i = 1; i < ctx->children.size(); i++) {
         if (const auto cld = dynamic_cast<loxParser::DeclarationContext *>(ctx->children[i]); cld != nullptr) {
-            this->declaration(cld);
+            sub_compiler.declaration(cld);
         }
     }
-}
-
-void Compiler::enter_scope() {
-    this->scope_depth_ += 1;
-}
-
-void Compiler::exit_scope() {
-    this->scope_depth_ -= 1;
 }
 
 void Compiler::handle_variable(std::string ident_name, const bool is_set) {
@@ -570,3 +599,53 @@ void Compiler::while_stmt(loxParser::WhileStmtContext *ctx) {
     this->function_->patch_jump(exit_jump);
     this->function_->write_opcode(OP_POP);
 }
+
+void Compiler::handle_function(FunctionType func_type, loxParser::ParametersContext *param_ctx,
+                               loxParser::BlockContext *blk_ctx, std::string func_name) {
+    auto func_compiler = Compiler(this, func_type);
+    func_compiler.function_->set_function_name(std::move(func_name));
+
+    // parameters
+    func_compiler.scope_depth_ += 1; // temporary action, raise the depth to handle variable
+    if (param_ctx != nullptr) {
+        const auto all_idents = param_ctx->IDENTIFIER();
+        for (auto &ident: all_idents) {
+            auto ident_name = ident->getText();
+            func_compiler.function_->inc_arity();
+            if (func_compiler.function_->get_arity() > 255) {
+                throw std::format_error("can't have more than 255 parameters for a function");
+            }
+            auto idx = func_compiler.parse_variable(std::move(ident_name));
+            func_compiler.define_variable(idx);
+        }
+    }
+    // body
+    func_compiler.scope_depth_ -= 1; // temporary action, to keep the compiler in block has the same depth with func_compiler
+    func_compiler.block_dec(blk_ctx);
+
+    this->function_->write_function(func_compiler.function_);
+}
+
+void Compiler::func_dec(loxParser::FunctionContext *ctx) {
+    // IDENTIFIER '(' parameters? ')' block;
+    auto ident = ctx->IDENTIFIER();
+    auto ident_name = ident->getText();
+
+    auto index = this->parse_variable(ident_name);
+    this->mark_last_local_variable_as_initialized();
+
+    // handle function body
+    this->handle_function(TYPE_FUNCTION, ctx->parameters(), ctx->block(), std::move(ident_name));
+
+    this->define_variable(index);
+}
+
+void Compiler::arguments_dec(loxParser::ArgumentsContext *ctx) {
+    auto exps = ctx->expression();
+    if (!exps.empty()) {
+        for (auto exp: exps) {
+            this->expression(exp);
+        }
+    }
+}
+// TODO: support debug print sub function.

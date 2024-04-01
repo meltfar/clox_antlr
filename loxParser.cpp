@@ -53,117 +53,121 @@ void loxParserInitialize() {
     std::vector<std::string>{
       "program", "declaration", "classDec", "funDec", "varDec", "statement", 
       "exprStmt", "forStmt", "ifStmt", "printStmt", "returnStmt", "whileStmt", 
-      "block", "expression", "assignment", "logic_or", "logic_and", "equality", 
-      "comparison", "term", "factor", "unary", "call", "primay", "function", 
-      "parameters", "arguments"
+      "breakStmt", "continueStmt", "block", "expression", "assignment", 
+      "logic_or", "logic_and", "equality", "comparison", "term", "factor", 
+      "unary", "call", "primay", "function", "parameters", "arguments"
     },
     std::vector<std::string>{
       "", "'class'", "'('", "')'", "'{'", "'}'", "'func'", "'var'", "'='", 
       "';'", "'for'", "'if'", "'else'", "'print'", "'return'", "'while'", 
-      "'.'", "'or'", "'and'", "'!='", "'=='", "'>'", "'>='", "'<'", "'<='", 
-      "'-'", "'+'", "'/'", "'*'", "'!'", "'true'", "'false'", "'nil'", "'this'", 
-      "'super'", "','"
+      "'break'", "'continue'", "'.'", "'or'", "'and'", "'!='", "'=='", "'>'", 
+      "'>='", "'<'", "'<='", "'-'", "'+'", "'/'", "'*'", "'!'", "'true'", 
+      "'false'", "'nil'", "'this'", "'super'", "','"
     },
     std::vector<std::string>{
       "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 
       "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 
-      "", "", "WHITESPACE", "NEWLINE", "NUMBER", "STRING_LITERAL", "IDENTIFIER", 
-      "ALPHA", "DIGIT"
+      "", "", "", "", "WHITESPACE", "NEWLINE", "NUMBER", "STRING_LITERAL", 
+      "IDENTIFIER", "ALPHA", "DIGIT"
     }
   );
   static const int32_t serializedATNSegment[] = {
-  	4,1,42,278,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,
+  	4,1,44,291,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,
   	7,7,7,2,8,7,8,2,9,7,9,2,10,7,10,2,11,7,11,2,12,7,12,2,13,7,13,2,14,7,
   	14,2,15,7,15,2,16,7,16,2,17,7,17,2,18,7,18,2,19,7,19,2,20,7,20,2,21,7,
-  	21,2,22,7,22,2,23,7,23,2,24,7,24,2,25,7,25,2,26,7,26,1,0,5,0,56,8,0,10,
-  	0,12,0,59,9,0,1,0,1,0,1,1,1,1,1,1,1,1,3,1,67,8,1,1,2,1,2,1,2,1,2,1,2,
-  	3,2,74,8,2,1,2,1,2,5,2,78,8,2,10,2,12,2,81,9,2,1,2,1,2,1,3,1,3,1,3,1,
-  	4,1,4,1,4,1,4,3,4,92,8,4,1,4,1,4,1,5,1,5,1,5,1,5,1,5,1,5,1,5,3,5,103,
-  	8,5,1,6,1,6,1,6,1,7,1,7,1,7,1,7,1,7,3,7,113,8,7,1,7,3,7,116,8,7,1,7,1,
-  	7,3,7,120,8,7,1,7,1,7,1,7,1,8,1,8,1,8,1,8,1,8,1,8,1,8,3,8,132,8,8,1,9,
-  	1,9,1,9,1,9,1,10,1,10,3,10,140,8,10,1,10,1,10,1,11,1,11,1,11,1,11,1,11,
-  	1,11,1,12,1,12,5,12,152,8,12,10,12,12,12,155,9,12,1,12,1,12,1,13,1,13,
-  	1,14,1,14,1,14,3,14,164,8,14,1,14,1,14,1,14,1,14,3,14,170,8,14,1,15,1,
-  	15,1,15,5,15,175,8,15,10,15,12,15,178,9,15,1,16,1,16,1,16,5,16,183,8,
-  	16,10,16,12,16,186,9,16,1,17,1,17,1,17,5,17,191,8,17,10,17,12,17,194,
-  	9,17,1,18,1,18,1,18,5,18,199,8,18,10,18,12,18,202,9,18,1,19,1,19,1,19,
-  	5,19,207,8,19,10,19,12,19,210,9,19,1,20,1,20,1,20,5,20,215,8,20,10,20,
-  	12,20,218,9,20,1,21,1,21,1,21,3,21,223,8,21,1,22,1,22,1,22,3,22,228,8,
-  	22,1,22,1,22,1,22,5,22,233,8,22,10,22,12,22,236,9,22,1,23,1,23,1,23,1,
-  	23,1,23,1,23,1,23,1,23,1,23,1,23,1,23,1,23,1,23,1,23,3,23,252,8,23,1,
-  	24,1,24,1,24,3,24,257,8,24,1,24,1,24,1,24,1,25,1,25,1,25,5,25,265,8,25,
-  	10,25,12,25,268,9,25,1,26,1,26,1,26,5,26,273,8,26,10,26,12,26,276,9,26,
-  	1,26,0,0,27,0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,
-  	42,44,46,48,50,52,0,5,1,0,19,20,1,0,21,24,1,0,25,26,1,0,27,28,2,0,25,
-  	25,29,29,293,0,57,1,0,0,0,2,66,1,0,0,0,4,68,1,0,0,0,6,84,1,0,0,0,8,87,
-  	1,0,0,0,10,102,1,0,0,0,12,104,1,0,0,0,14,107,1,0,0,0,16,124,1,0,0,0,18,
-  	133,1,0,0,0,20,137,1,0,0,0,22,143,1,0,0,0,24,149,1,0,0,0,26,158,1,0,0,
-  	0,28,169,1,0,0,0,30,171,1,0,0,0,32,179,1,0,0,0,34,187,1,0,0,0,36,195,
-  	1,0,0,0,38,203,1,0,0,0,40,211,1,0,0,0,42,222,1,0,0,0,44,224,1,0,0,0,46,
-  	251,1,0,0,0,48,253,1,0,0,0,50,261,1,0,0,0,52,269,1,0,0,0,54,56,3,2,1,
-  	0,55,54,1,0,0,0,56,59,1,0,0,0,57,55,1,0,0,0,57,58,1,0,0,0,58,60,1,0,0,
-  	0,59,57,1,0,0,0,60,61,5,0,0,1,61,1,1,0,0,0,62,67,3,4,2,0,63,67,3,6,3,
-  	0,64,67,3,8,4,0,65,67,3,10,5,0,66,62,1,0,0,0,66,63,1,0,0,0,66,64,1,0,
-  	0,0,66,65,1,0,0,0,67,3,1,0,0,0,68,69,5,1,0,0,69,73,5,40,0,0,70,71,5,2,
-  	0,0,71,72,5,40,0,0,72,74,5,3,0,0,73,70,1,0,0,0,73,74,1,0,0,0,74,75,1,
-  	0,0,0,75,79,5,4,0,0,76,78,3,48,24,0,77,76,1,0,0,0,78,81,1,0,0,0,79,77,
-  	1,0,0,0,79,80,1,0,0,0,80,82,1,0,0,0,81,79,1,0,0,0,82,83,5,5,0,0,83,5,
-  	1,0,0,0,84,85,5,6,0,0,85,86,3,48,24,0,86,7,1,0,0,0,87,88,5,7,0,0,88,91,
-  	5,40,0,0,89,90,5,8,0,0,90,92,3,26,13,0,91,89,1,0,0,0,91,92,1,0,0,0,92,
-  	93,1,0,0,0,93,94,5,9,0,0,94,9,1,0,0,0,95,103,3,12,6,0,96,103,3,14,7,0,
-  	97,103,3,16,8,0,98,103,3,18,9,0,99,103,3,20,10,0,100,103,3,22,11,0,101,
-  	103,3,24,12,0,102,95,1,0,0,0,102,96,1,0,0,0,102,97,1,0,0,0,102,98,1,0,
-  	0,0,102,99,1,0,0,0,102,100,1,0,0,0,102,101,1,0,0,0,103,11,1,0,0,0,104,
-  	105,3,26,13,0,105,106,5,9,0,0,106,13,1,0,0,0,107,108,5,10,0,0,108,112,
-  	5,2,0,0,109,113,3,8,4,0,110,113,3,12,6,0,111,113,5,9,0,0,112,109,1,0,
-  	0,0,112,110,1,0,0,0,112,111,1,0,0,0,113,115,1,0,0,0,114,116,3,26,13,0,
-  	115,114,1,0,0,0,115,116,1,0,0,0,116,117,1,0,0,0,117,119,5,9,0,0,118,120,
-  	3,26,13,0,119,118,1,0,0,0,119,120,1,0,0,0,120,121,1,0,0,0,121,122,5,9,
-  	0,0,122,123,3,24,12,0,123,15,1,0,0,0,124,125,5,11,0,0,125,126,5,2,0,0,
-  	126,127,3,26,13,0,127,128,5,3,0,0,128,131,3,24,12,0,129,130,5,12,0,0,
-  	130,132,3,24,12,0,131,129,1,0,0,0,131,132,1,0,0,0,132,17,1,0,0,0,133,
-  	134,5,13,0,0,134,135,3,26,13,0,135,136,5,9,0,0,136,19,1,0,0,0,137,139,
-  	5,14,0,0,138,140,3,26,13,0,139,138,1,0,0,0,139,140,1,0,0,0,140,141,1,
-  	0,0,0,141,142,5,9,0,0,142,21,1,0,0,0,143,144,5,15,0,0,144,145,5,2,0,0,
-  	145,146,3,26,13,0,146,147,5,3,0,0,147,148,3,24,12,0,148,23,1,0,0,0,149,
-  	153,5,4,0,0,150,152,3,2,1,0,151,150,1,0,0,0,152,155,1,0,0,0,153,151,1,
-  	0,0,0,153,154,1,0,0,0,154,156,1,0,0,0,155,153,1,0,0,0,156,157,5,5,0,0,
-  	157,25,1,0,0,0,158,159,3,28,14,0,159,27,1,0,0,0,160,161,3,44,22,0,161,
-  	162,5,16,0,0,162,164,1,0,0,0,163,160,1,0,0,0,163,164,1,0,0,0,164,165,
-  	1,0,0,0,165,166,5,40,0,0,166,167,5,8,0,0,167,170,3,28,14,0,168,170,3,
-  	30,15,0,169,163,1,0,0,0,169,168,1,0,0,0,170,29,1,0,0,0,171,176,3,32,16,
-  	0,172,173,5,17,0,0,173,175,3,32,16,0,174,172,1,0,0,0,175,178,1,0,0,0,
-  	176,174,1,0,0,0,176,177,1,0,0,0,177,31,1,0,0,0,178,176,1,0,0,0,179,184,
-  	3,34,17,0,180,181,5,18,0,0,181,183,3,34,17,0,182,180,1,0,0,0,183,186,
-  	1,0,0,0,184,182,1,0,0,0,184,185,1,0,0,0,185,33,1,0,0,0,186,184,1,0,0,
-  	0,187,192,3,36,18,0,188,189,7,0,0,0,189,191,3,36,18,0,190,188,1,0,0,0,
-  	191,194,1,0,0,0,192,190,1,0,0,0,192,193,1,0,0,0,193,35,1,0,0,0,194,192,
-  	1,0,0,0,195,200,3,38,19,0,196,197,7,1,0,0,197,199,3,38,19,0,198,196,1,
-  	0,0,0,199,202,1,0,0,0,200,198,1,0,0,0,200,201,1,0,0,0,201,37,1,0,0,0,
-  	202,200,1,0,0,0,203,208,3,40,20,0,204,205,7,2,0,0,205,207,3,40,20,0,206,
-  	204,1,0,0,0,207,210,1,0,0,0,208,206,1,0,0,0,208,209,1,0,0,0,209,39,1,
-  	0,0,0,210,208,1,0,0,0,211,216,3,42,21,0,212,213,7,3,0,0,213,215,3,42,
-  	21,0,214,212,1,0,0,0,215,218,1,0,0,0,216,214,1,0,0,0,216,217,1,0,0,0,
-  	217,41,1,0,0,0,218,216,1,0,0,0,219,220,7,4,0,0,220,223,3,42,21,0,221,
-  	223,3,44,22,0,222,219,1,0,0,0,222,221,1,0,0,0,223,43,1,0,0,0,224,234,
-  	3,46,23,0,225,227,5,2,0,0,226,228,3,52,26,0,227,226,1,0,0,0,227,228,1,
-  	0,0,0,228,229,1,0,0,0,229,233,5,3,0,0,230,231,5,16,0,0,231,233,5,40,0,
-  	0,232,225,1,0,0,0,232,230,1,0,0,0,233,236,1,0,0,0,234,232,1,0,0,0,234,
-  	235,1,0,0,0,235,45,1,0,0,0,236,234,1,0,0,0,237,252,5,30,0,0,238,252,5,
-  	31,0,0,239,252,5,32,0,0,240,252,5,33,0,0,241,252,5,38,0,0,242,252,5,39,
-  	0,0,243,252,5,40,0,0,244,245,5,2,0,0,245,246,3,26,13,0,246,247,5,3,0,
-  	0,247,252,1,0,0,0,248,249,5,34,0,0,249,250,5,16,0,0,250,252,5,40,0,0,
-  	251,237,1,0,0,0,251,238,1,0,0,0,251,239,1,0,0,0,251,240,1,0,0,0,251,241,
-  	1,0,0,0,251,242,1,0,0,0,251,243,1,0,0,0,251,244,1,0,0,0,251,248,1,0,0,
-  	0,252,47,1,0,0,0,253,254,5,40,0,0,254,256,5,2,0,0,255,257,3,50,25,0,256,
-  	255,1,0,0,0,256,257,1,0,0,0,257,258,1,0,0,0,258,259,5,3,0,0,259,260,3,
-  	24,12,0,260,49,1,0,0,0,261,266,5,40,0,0,262,263,5,35,0,0,263,265,5,40,
-  	0,0,264,262,1,0,0,0,265,268,1,0,0,0,266,264,1,0,0,0,266,267,1,0,0,0,267,
-  	51,1,0,0,0,268,266,1,0,0,0,269,274,3,26,13,0,270,271,5,35,0,0,271,273,
-  	3,26,13,0,272,270,1,0,0,0,273,276,1,0,0,0,274,272,1,0,0,0,274,275,1,0,
-  	0,0,275,53,1,0,0,0,276,274,1,0,0,0,28,57,66,73,79,91,102,112,115,119,
-  	131,139,153,163,169,176,184,192,200,208,216,222,227,232,234,251,256,266,
-  	274
+  	21,2,22,7,22,2,23,7,23,2,24,7,24,2,25,7,25,2,26,7,26,2,27,7,27,2,28,7,
+  	28,1,0,5,0,60,8,0,10,0,12,0,63,9,0,1,0,1,0,1,1,1,1,1,1,1,1,3,1,71,8,1,
+  	1,2,1,2,1,2,1,2,1,2,3,2,78,8,2,1,2,1,2,5,2,82,8,2,10,2,12,2,85,9,2,1,
+  	2,1,2,1,3,1,3,1,3,1,4,1,4,1,4,1,4,3,4,96,8,4,1,4,1,4,1,5,1,5,1,5,1,5,
+  	1,5,1,5,1,5,1,5,1,5,3,5,109,8,5,1,6,1,6,1,6,1,7,1,7,1,7,1,7,1,7,3,7,119,
+  	8,7,1,7,3,7,122,8,7,1,7,1,7,3,7,126,8,7,1,7,1,7,1,7,1,7,1,8,1,8,1,8,1,
+  	8,1,8,1,8,1,8,3,8,139,8,8,1,9,1,9,1,9,1,9,1,10,1,10,3,10,147,8,10,1,10,
+  	1,10,1,11,1,11,1,11,1,11,1,11,1,11,1,12,1,12,1,12,1,13,1,13,1,13,1,14,
+  	1,14,5,14,165,8,14,10,14,12,14,168,9,14,1,14,1,14,1,15,1,15,1,16,1,16,
+  	1,16,3,16,177,8,16,1,16,1,16,1,16,1,16,3,16,183,8,16,1,17,1,17,1,17,5,
+  	17,188,8,17,10,17,12,17,191,9,17,1,18,1,18,1,18,5,18,196,8,18,10,18,12,
+  	18,199,9,18,1,19,1,19,1,19,5,19,204,8,19,10,19,12,19,207,9,19,1,20,1,
+  	20,1,20,5,20,212,8,20,10,20,12,20,215,9,20,1,21,1,21,1,21,5,21,220,8,
+  	21,10,21,12,21,223,9,21,1,22,1,22,1,22,5,22,228,8,22,10,22,12,22,231,
+  	9,22,1,23,1,23,1,23,3,23,236,8,23,1,24,1,24,1,24,3,24,241,8,24,1,24,1,
+  	24,1,24,5,24,246,8,24,10,24,12,24,249,9,24,1,25,1,25,1,25,1,25,1,25,1,
+  	25,1,25,1,25,1,25,1,25,1,25,1,25,1,25,1,25,3,25,265,8,25,1,26,1,26,1,
+  	26,3,26,270,8,26,1,26,1,26,1,26,1,27,1,27,1,27,5,27,278,8,27,10,27,12,
+  	27,281,9,27,1,28,1,28,1,28,5,28,286,8,28,10,28,12,28,289,9,28,1,28,0,
+  	0,29,0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,
+  	46,48,50,52,54,56,0,5,1,0,21,22,1,0,23,26,1,0,27,28,1,0,29,30,2,0,27,
+  	27,31,31,306,0,61,1,0,0,0,2,70,1,0,0,0,4,72,1,0,0,0,6,88,1,0,0,0,8,91,
+  	1,0,0,0,10,108,1,0,0,0,12,110,1,0,0,0,14,113,1,0,0,0,16,131,1,0,0,0,18,
+  	140,1,0,0,0,20,144,1,0,0,0,22,150,1,0,0,0,24,156,1,0,0,0,26,159,1,0,0,
+  	0,28,162,1,0,0,0,30,171,1,0,0,0,32,182,1,0,0,0,34,184,1,0,0,0,36,192,
+  	1,0,0,0,38,200,1,0,0,0,40,208,1,0,0,0,42,216,1,0,0,0,44,224,1,0,0,0,46,
+  	235,1,0,0,0,48,237,1,0,0,0,50,264,1,0,0,0,52,266,1,0,0,0,54,274,1,0,0,
+  	0,56,282,1,0,0,0,58,60,3,2,1,0,59,58,1,0,0,0,60,63,1,0,0,0,61,59,1,0,
+  	0,0,61,62,1,0,0,0,62,64,1,0,0,0,63,61,1,0,0,0,64,65,5,0,0,1,65,1,1,0,
+  	0,0,66,71,3,4,2,0,67,71,3,6,3,0,68,71,3,8,4,0,69,71,3,10,5,0,70,66,1,
+  	0,0,0,70,67,1,0,0,0,70,68,1,0,0,0,70,69,1,0,0,0,71,3,1,0,0,0,72,73,5,
+  	1,0,0,73,77,5,42,0,0,74,75,5,2,0,0,75,76,5,42,0,0,76,78,5,3,0,0,77,74,
+  	1,0,0,0,77,78,1,0,0,0,78,79,1,0,0,0,79,83,5,4,0,0,80,82,3,52,26,0,81,
+  	80,1,0,0,0,82,85,1,0,0,0,83,81,1,0,0,0,83,84,1,0,0,0,84,86,1,0,0,0,85,
+  	83,1,0,0,0,86,87,5,5,0,0,87,5,1,0,0,0,88,89,5,6,0,0,89,90,3,52,26,0,90,
+  	7,1,0,0,0,91,92,5,7,0,0,92,95,5,42,0,0,93,94,5,8,0,0,94,96,3,30,15,0,
+  	95,93,1,0,0,0,95,96,1,0,0,0,96,97,1,0,0,0,97,98,5,9,0,0,98,9,1,0,0,0,
+  	99,109,3,12,6,0,100,109,3,14,7,0,101,109,3,16,8,0,102,109,3,18,9,0,103,
+  	109,3,20,10,0,104,109,3,22,11,0,105,109,3,24,12,0,106,109,3,26,13,0,107,
+  	109,3,28,14,0,108,99,1,0,0,0,108,100,1,0,0,0,108,101,1,0,0,0,108,102,
+  	1,0,0,0,108,103,1,0,0,0,108,104,1,0,0,0,108,105,1,0,0,0,108,106,1,0,0,
+  	0,108,107,1,0,0,0,109,11,1,0,0,0,110,111,3,30,15,0,111,112,5,9,0,0,112,
+  	13,1,0,0,0,113,114,5,10,0,0,114,118,5,2,0,0,115,119,3,8,4,0,116,119,3,
+  	12,6,0,117,119,5,9,0,0,118,115,1,0,0,0,118,116,1,0,0,0,118,117,1,0,0,
+  	0,119,121,1,0,0,0,120,122,3,30,15,0,121,120,1,0,0,0,121,122,1,0,0,0,122,
+  	123,1,0,0,0,123,125,5,9,0,0,124,126,3,30,15,0,125,124,1,0,0,0,125,126,
+  	1,0,0,0,126,127,1,0,0,0,127,128,5,9,0,0,128,129,5,3,0,0,129,130,3,28,
+  	14,0,130,15,1,0,0,0,131,132,5,11,0,0,132,133,5,2,0,0,133,134,3,30,15,
+  	0,134,135,5,3,0,0,135,138,3,28,14,0,136,137,5,12,0,0,137,139,3,28,14,
+  	0,138,136,1,0,0,0,138,139,1,0,0,0,139,17,1,0,0,0,140,141,5,13,0,0,141,
+  	142,3,30,15,0,142,143,5,9,0,0,143,19,1,0,0,0,144,146,5,14,0,0,145,147,
+  	3,30,15,0,146,145,1,0,0,0,146,147,1,0,0,0,147,148,1,0,0,0,148,149,5,9,
+  	0,0,149,21,1,0,0,0,150,151,5,15,0,0,151,152,5,2,0,0,152,153,3,30,15,0,
+  	153,154,5,3,0,0,154,155,3,28,14,0,155,23,1,0,0,0,156,157,5,16,0,0,157,
+  	158,5,9,0,0,158,25,1,0,0,0,159,160,5,17,0,0,160,161,5,9,0,0,161,27,1,
+  	0,0,0,162,166,5,4,0,0,163,165,3,2,1,0,164,163,1,0,0,0,165,168,1,0,0,0,
+  	166,164,1,0,0,0,166,167,1,0,0,0,167,169,1,0,0,0,168,166,1,0,0,0,169,170,
+  	5,5,0,0,170,29,1,0,0,0,171,172,3,32,16,0,172,31,1,0,0,0,173,174,3,48,
+  	24,0,174,175,5,18,0,0,175,177,1,0,0,0,176,173,1,0,0,0,176,177,1,0,0,0,
+  	177,178,1,0,0,0,178,179,5,42,0,0,179,180,5,8,0,0,180,183,3,32,16,0,181,
+  	183,3,34,17,0,182,176,1,0,0,0,182,181,1,0,0,0,183,33,1,0,0,0,184,189,
+  	3,36,18,0,185,186,5,19,0,0,186,188,3,36,18,0,187,185,1,0,0,0,188,191,
+  	1,0,0,0,189,187,1,0,0,0,189,190,1,0,0,0,190,35,1,0,0,0,191,189,1,0,0,
+  	0,192,197,3,38,19,0,193,194,5,20,0,0,194,196,3,38,19,0,195,193,1,0,0,
+  	0,196,199,1,0,0,0,197,195,1,0,0,0,197,198,1,0,0,0,198,37,1,0,0,0,199,
+  	197,1,0,0,0,200,205,3,40,20,0,201,202,7,0,0,0,202,204,3,40,20,0,203,201,
+  	1,0,0,0,204,207,1,0,0,0,205,203,1,0,0,0,205,206,1,0,0,0,206,39,1,0,0,
+  	0,207,205,1,0,0,0,208,213,3,42,21,0,209,210,7,1,0,0,210,212,3,42,21,0,
+  	211,209,1,0,0,0,212,215,1,0,0,0,213,211,1,0,0,0,213,214,1,0,0,0,214,41,
+  	1,0,0,0,215,213,1,0,0,0,216,221,3,44,22,0,217,218,7,2,0,0,218,220,3,44,
+  	22,0,219,217,1,0,0,0,220,223,1,0,0,0,221,219,1,0,0,0,221,222,1,0,0,0,
+  	222,43,1,0,0,0,223,221,1,0,0,0,224,229,3,46,23,0,225,226,7,3,0,0,226,
+  	228,3,46,23,0,227,225,1,0,0,0,228,231,1,0,0,0,229,227,1,0,0,0,229,230,
+  	1,0,0,0,230,45,1,0,0,0,231,229,1,0,0,0,232,233,7,4,0,0,233,236,3,46,23,
+  	0,234,236,3,48,24,0,235,232,1,0,0,0,235,234,1,0,0,0,236,47,1,0,0,0,237,
+  	247,3,50,25,0,238,240,5,2,0,0,239,241,3,56,28,0,240,239,1,0,0,0,240,241,
+  	1,0,0,0,241,242,1,0,0,0,242,246,5,3,0,0,243,244,5,18,0,0,244,246,5,42,
+  	0,0,245,238,1,0,0,0,245,243,1,0,0,0,246,249,1,0,0,0,247,245,1,0,0,0,247,
+  	248,1,0,0,0,248,49,1,0,0,0,249,247,1,0,0,0,250,265,5,32,0,0,251,265,5,
+  	33,0,0,252,265,5,34,0,0,253,265,5,35,0,0,254,265,5,40,0,0,255,265,5,41,
+  	0,0,256,265,5,42,0,0,257,258,5,2,0,0,258,259,3,30,15,0,259,260,5,3,0,
+  	0,260,265,1,0,0,0,261,262,5,36,0,0,262,263,5,18,0,0,263,265,5,42,0,0,
+  	264,250,1,0,0,0,264,251,1,0,0,0,264,252,1,0,0,0,264,253,1,0,0,0,264,254,
+  	1,0,0,0,264,255,1,0,0,0,264,256,1,0,0,0,264,257,1,0,0,0,264,261,1,0,0,
+  	0,265,51,1,0,0,0,266,267,5,42,0,0,267,269,5,2,0,0,268,270,3,54,27,0,269,
+  	268,1,0,0,0,269,270,1,0,0,0,270,271,1,0,0,0,271,272,5,3,0,0,272,273,3,
+  	28,14,0,273,53,1,0,0,0,274,279,5,42,0,0,275,276,5,37,0,0,276,278,5,42,
+  	0,0,277,275,1,0,0,0,278,281,1,0,0,0,279,277,1,0,0,0,279,280,1,0,0,0,280,
+  	55,1,0,0,0,281,279,1,0,0,0,282,287,3,30,15,0,283,284,5,37,0,0,284,286,
+  	3,30,15,0,285,283,1,0,0,0,286,289,1,0,0,0,287,285,1,0,0,0,287,288,1,0,
+  	0,0,288,57,1,0,0,0,289,287,1,0,0,0,28,61,70,77,83,95,108,118,121,125,
+  	138,146,166,176,182,189,197,205,213,221,229,235,240,245,247,264,269,279,
+  	287
   };
   staticData->serializedATN = antlr4::atn::SerializedATNView(serializedATNSegment, sizeof(serializedATNSegment) / sizeof(serializedATNSegment[0]));
 
@@ -250,18 +254,18 @@ loxParser::ProgramContext* loxParser::program() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(57);
+    setState(61);
     _errHandler->sync(this);
     _la = _input->LA(1);
     while ((((_la & ~ 0x3fULL) == 0) &&
-      ((1ULL << _la) & 1958001831126) != 0)) {
-      setState(54);
+      ((1ULL << _la) & 7832007339222) != 0)) {
+      setState(58);
       declaration();
-      setState(59);
+      setState(63);
       _errHandler->sync(this);
       _la = _input->LA(1);
     }
-    setState(60);
+    setState(64);
     match(loxParser::EOF);
    
   }
@@ -314,26 +318,26 @@ loxParser::DeclarationContext* loxParser::declaration() {
     exitRule();
   });
   try {
-    setState(66);
+    setState(70);
     _errHandler->sync(this);
     switch (_input->LA(1)) {
       case loxParser::T__0: {
         enterOuterAlt(_localctx, 1);
-        setState(62);
+        setState(66);
         classDec();
         break;
       }
 
       case loxParser::T__5: {
         enterOuterAlt(_localctx, 2);
-        setState(63);
+        setState(67);
         funDec();
         break;
       }
 
       case loxParser::T__6: {
         enterOuterAlt(_localctx, 3);
-        setState(64);
+        setState(68);
         varDec();
         break;
       }
@@ -345,18 +349,20 @@ loxParser::DeclarationContext* loxParser::declaration() {
       case loxParser::T__12:
       case loxParser::T__13:
       case loxParser::T__14:
-      case loxParser::T__24:
-      case loxParser::T__28:
-      case loxParser::T__29:
+      case loxParser::T__15:
+      case loxParser::T__16:
+      case loxParser::T__26:
       case loxParser::T__30:
       case loxParser::T__31:
       case loxParser::T__32:
       case loxParser::T__33:
+      case loxParser::T__34:
+      case loxParser::T__35:
       case loxParser::NUMBER:
       case loxParser::STRING_LITERAL:
       case loxParser::IDENTIFIER: {
         enterOuterAlt(_localctx, 4);
-        setState(65);
+        setState(69);
         statement();
         break;
       }
@@ -417,35 +423,35 @@ loxParser::ClassDecContext* loxParser::classDec() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(68);
+    setState(72);
     match(loxParser::T__0);
-    setState(69);
-    match(loxParser::IDENTIFIER);
     setState(73);
+    match(loxParser::IDENTIFIER);
+    setState(77);
     _errHandler->sync(this);
 
     _la = _input->LA(1);
     if (_la == loxParser::T__1) {
-      setState(70);
+      setState(74);
       match(loxParser::T__1);
-      setState(71);
+      setState(75);
       match(loxParser::IDENTIFIER);
-      setState(72);
+      setState(76);
       match(loxParser::T__2);
     }
-    setState(75);
-    match(loxParser::T__3);
     setState(79);
+    match(loxParser::T__3);
+    setState(83);
     _errHandler->sync(this);
     _la = _input->LA(1);
     while (_la == loxParser::IDENTIFIER) {
-      setState(76);
+      setState(80);
       function();
-      setState(81);
+      setState(85);
       _errHandler->sync(this);
       _la = _input->LA(1);
     }
-    setState(82);
+    setState(86);
     match(loxParser::T__4);
    
   }
@@ -487,9 +493,9 @@ loxParser::FunDecContext* loxParser::funDec() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(84);
+    setState(88);
     match(loxParser::T__5);
-    setState(85);
+    setState(89);
     function();
    
   }
@@ -536,21 +542,21 @@ loxParser::VarDecContext* loxParser::varDec() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(87);
-    match(loxParser::T__6);
-    setState(88);
-    match(loxParser::IDENTIFIER);
     setState(91);
+    match(loxParser::T__6);
+    setState(92);
+    match(loxParser::IDENTIFIER);
+    setState(95);
     _errHandler->sync(this);
 
     _la = _input->LA(1);
     if (_la == loxParser::T__7) {
-      setState(89);
+      setState(93);
       match(loxParser::T__7);
-      setState(90);
+      setState(94);
       expression();
     }
-    setState(93);
+    setState(97);
     match(loxParser::T__8);
    
   }
@@ -593,6 +599,14 @@ loxParser::WhileStmtContext* loxParser::StatementContext::whileStmt() {
   return getRuleContext<loxParser::WhileStmtContext>(0);
 }
 
+loxParser::BreakStmtContext* loxParser::StatementContext::breakStmt() {
+  return getRuleContext<loxParser::BreakStmtContext>(0);
+}
+
+loxParser::ContinueStmtContext* loxParser::StatementContext::continueStmt() {
+  return getRuleContext<loxParser::ContinueStmtContext>(0);
+}
+
 loxParser::BlockContext* loxParser::StatementContext::block() {
   return getRuleContext<loxParser::BlockContext>(0);
 }
@@ -615,64 +629,78 @@ loxParser::StatementContext* loxParser::statement() {
     exitRule();
   });
   try {
-    setState(102);
+    setState(108);
     _errHandler->sync(this);
     switch (_input->LA(1)) {
       case loxParser::T__1:
-      case loxParser::T__24:
-      case loxParser::T__28:
-      case loxParser::T__29:
+      case loxParser::T__26:
       case loxParser::T__30:
       case loxParser::T__31:
       case loxParser::T__32:
       case loxParser::T__33:
+      case loxParser::T__34:
+      case loxParser::T__35:
       case loxParser::NUMBER:
       case loxParser::STRING_LITERAL:
       case loxParser::IDENTIFIER: {
         enterOuterAlt(_localctx, 1);
-        setState(95);
+        setState(99);
         exprStmt();
         break;
       }
 
       case loxParser::T__9: {
         enterOuterAlt(_localctx, 2);
-        setState(96);
+        setState(100);
         forStmt();
         break;
       }
 
       case loxParser::T__10: {
         enterOuterAlt(_localctx, 3);
-        setState(97);
+        setState(101);
         ifStmt();
         break;
       }
 
       case loxParser::T__12: {
         enterOuterAlt(_localctx, 4);
-        setState(98);
+        setState(102);
         printStmt();
         break;
       }
 
       case loxParser::T__13: {
         enterOuterAlt(_localctx, 5);
-        setState(99);
+        setState(103);
         returnStmt();
         break;
       }
 
       case loxParser::T__14: {
         enterOuterAlt(_localctx, 6);
-        setState(100);
+        setState(104);
         whileStmt();
         break;
       }
 
-      case loxParser::T__3: {
+      case loxParser::T__15: {
         enterOuterAlt(_localctx, 7);
-        setState(101);
+        setState(105);
+        breakStmt();
+        break;
+      }
+
+      case loxParser::T__16: {
+        enterOuterAlt(_localctx, 8);
+        setState(106);
+        continueStmt();
+        break;
+      }
+
+      case loxParser::T__3: {
+        enterOuterAlt(_localctx, 9);
+        setState(107);
         block();
         break;
       }
@@ -720,9 +748,9 @@ loxParser::ExprStmtContext* loxParser::exprStmt() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(104);
+    setState(110);
     expression();
-    setState(105);
+    setState(111);
     match(loxParser::T__8);
    
   }
@@ -781,37 +809,37 @@ loxParser::ForStmtContext* loxParser::forStmt() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(107);
+    setState(113);
     match(loxParser::T__9);
-    setState(108);
+    setState(114);
     match(loxParser::T__1);
-    setState(112);
+    setState(118);
     _errHandler->sync(this);
     switch (_input->LA(1)) {
       case loxParser::T__6: {
-        setState(109);
+        setState(115);
         varDec();
         break;
       }
 
       case loxParser::T__1:
-      case loxParser::T__24:
-      case loxParser::T__28:
-      case loxParser::T__29:
+      case loxParser::T__26:
       case loxParser::T__30:
       case loxParser::T__31:
       case loxParser::T__32:
       case loxParser::T__33:
+      case loxParser::T__34:
+      case loxParser::T__35:
       case loxParser::NUMBER:
       case loxParser::STRING_LITERAL:
       case loxParser::IDENTIFIER: {
-        setState(110);
+        setState(116);
         exprStmt();
         break;
       }
 
       case loxParser::T__8: {
-        setState(111);
+        setState(117);
         match(loxParser::T__8);
         break;
       }
@@ -819,29 +847,31 @@ loxParser::ForStmtContext* loxParser::forStmt() {
     default:
       throw NoViableAltException(this);
     }
-    setState(115);
-    _errHandler->sync(this);
-
-    _la = _input->LA(1);
-    if ((((_la & ~ 0x3fULL) == 0) &&
-      ((1ULL << _la) & 1958001770500) != 0)) {
-      setState(114);
-      expression();
-    }
-    setState(117);
-    match(loxParser::T__8);
-    setState(119);
-    _errHandler->sync(this);
-
-    _la = _input->LA(1);
-    if ((((_la & ~ 0x3fULL) == 0) &&
-      ((1ULL << _la) & 1958001770500) != 0)) {
-      setState(118);
-      expression();
-    }
     setState(121);
+    _errHandler->sync(this);
+
+    _la = _input->LA(1);
+    if ((((_la & ~ 0x3fULL) == 0) &&
+      ((1ULL << _la) & 7832007081988) != 0)) {
+      setState(120);
+      expression();
+    }
+    setState(123);
     match(loxParser::T__8);
-    setState(122);
+    setState(125);
+    _errHandler->sync(this);
+
+    _la = _input->LA(1);
+    if ((((_la & ~ 0x3fULL) == 0) &&
+      ((1ULL << _la) & 7832007081988) != 0)) {
+      setState(124);
+      expression();
+    }
+    setState(127);
+    match(loxParser::T__8);
+    setState(128);
+    match(loxParser::T__2);
+    setState(129);
     block();
    
   }
@@ -892,24 +922,24 @@ loxParser::IfStmtContext* loxParser::ifStmt() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(124);
-    match(loxParser::T__10);
-    setState(125);
-    match(loxParser::T__1);
-    setState(126);
-    expression();
-    setState(127);
-    match(loxParser::T__2);
-    setState(128);
-    block();
     setState(131);
+    match(loxParser::T__10);
+    setState(132);
+    match(loxParser::T__1);
+    setState(133);
+    expression();
+    setState(134);
+    match(loxParser::T__2);
+    setState(135);
+    block();
+    setState(138);
     _errHandler->sync(this);
 
     _la = _input->LA(1);
     if (_la == loxParser::T__11) {
-      setState(129);
+      setState(136);
       match(loxParser::T__11);
-      setState(130);
+      setState(137);
       block();
     }
    
@@ -952,11 +982,11 @@ loxParser::PrintStmtContext* loxParser::printStmt() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(133);
+    setState(140);
     match(loxParser::T__12);
-    setState(134);
+    setState(141);
     expression();
-    setState(135);
+    setState(142);
     match(loxParser::T__8);
    
   }
@@ -999,18 +1029,18 @@ loxParser::ReturnStmtContext* loxParser::returnStmt() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(137);
+    setState(144);
     match(loxParser::T__13);
-    setState(139);
+    setState(146);
     _errHandler->sync(this);
 
     _la = _input->LA(1);
     if ((((_la & ~ 0x3fULL) == 0) &&
-      ((1ULL << _la) & 1958001770500) != 0)) {
-      setState(138);
+      ((1ULL << _la) & 7832007081988) != 0)) {
+      setState(145);
       expression();
     }
-    setState(141);
+    setState(148);
     match(loxParser::T__8);
    
   }
@@ -1056,16 +1086,96 @@ loxParser::WhileStmtContext* loxParser::whileStmt() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(143);
+    setState(150);
     match(loxParser::T__14);
-    setState(144);
+    setState(151);
     match(loxParser::T__1);
-    setState(145);
+    setState(152);
     expression();
-    setState(146);
+    setState(153);
     match(loxParser::T__2);
-    setState(147);
+    setState(154);
     block();
+   
+  }
+  catch (RecognitionException &e) {
+    _errHandler->reportError(this, e);
+    _localctx->exception = std::current_exception();
+    _errHandler->recover(this, _localctx->exception);
+  }
+
+  return _localctx;
+}
+
+//----------------- BreakStmtContext ------------------------------------------------------------------
+
+loxParser::BreakStmtContext::BreakStmtContext(ParserRuleContext *parent, size_t invokingState)
+  : ParserRuleContext(parent, invokingState) {
+}
+
+
+size_t loxParser::BreakStmtContext::getRuleIndex() const {
+  return loxParser::RuleBreakStmt;
+}
+
+
+loxParser::BreakStmtContext* loxParser::breakStmt() {
+  BreakStmtContext *_localctx = _tracker.createInstance<BreakStmtContext>(_ctx, getState());
+  enterRule(_localctx, 24, loxParser::RuleBreakStmt);
+
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
+  auto onExit = finally([=] {
+#endif
+    exitRule();
+  });
+  try {
+    enterOuterAlt(_localctx, 1);
+    setState(156);
+    match(loxParser::T__15);
+    setState(157);
+    match(loxParser::T__8);
+   
+  }
+  catch (RecognitionException &e) {
+    _errHandler->reportError(this, e);
+    _localctx->exception = std::current_exception();
+    _errHandler->recover(this, _localctx->exception);
+  }
+
+  return _localctx;
+}
+
+//----------------- ContinueStmtContext ------------------------------------------------------------------
+
+loxParser::ContinueStmtContext::ContinueStmtContext(ParserRuleContext *parent, size_t invokingState)
+  : ParserRuleContext(parent, invokingState) {
+}
+
+
+size_t loxParser::ContinueStmtContext::getRuleIndex() const {
+  return loxParser::RuleContinueStmt;
+}
+
+
+loxParser::ContinueStmtContext* loxParser::continueStmt() {
+  ContinueStmtContext *_localctx = _tracker.createInstance<ContinueStmtContext>(_ctx, getState());
+  enterRule(_localctx, 26, loxParser::RuleContinueStmt);
+
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
+  auto onExit = finally([=] {
+#endif
+    exitRule();
+  });
+  try {
+    enterOuterAlt(_localctx, 1);
+    setState(159);
+    match(loxParser::T__16);
+    setState(160);
+    match(loxParser::T__8);
    
   }
   catch (RecognitionException &e) {
@@ -1099,7 +1209,7 @@ size_t loxParser::BlockContext::getRuleIndex() const {
 
 loxParser::BlockContext* loxParser::block() {
   BlockContext *_localctx = _tracker.createInstance<BlockContext>(_ctx, getState());
-  enterRule(_localctx, 24, loxParser::RuleBlock);
+  enterRule(_localctx, 28, loxParser::RuleBlock);
   size_t _la = 0;
 
 #if __cplusplus > 201703L
@@ -1111,20 +1221,20 @@ loxParser::BlockContext* loxParser::block() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(149);
+    setState(162);
     match(loxParser::T__3);
-    setState(153);
+    setState(166);
     _errHandler->sync(this);
     _la = _input->LA(1);
     while ((((_la & ~ 0x3fULL) == 0) &&
-      ((1ULL << _la) & 1958001831126) != 0)) {
-      setState(150);
+      ((1ULL << _la) & 7832007339222) != 0)) {
+      setState(163);
       declaration();
-      setState(155);
+      setState(168);
       _errHandler->sync(this);
       _la = _input->LA(1);
     }
-    setState(156);
+    setState(169);
     match(loxParser::T__4);
    
   }
@@ -1155,7 +1265,7 @@ size_t loxParser::ExpressionContext::getRuleIndex() const {
 
 loxParser::ExpressionContext* loxParser::expression() {
   ExpressionContext *_localctx = _tracker.createInstance<ExpressionContext>(_ctx, getState());
-  enterRule(_localctx, 26, loxParser::RuleExpression);
+  enterRule(_localctx, 30, loxParser::RuleExpression);
 
 #if __cplusplus > 201703L
   auto onExit = finally([=, this] {
@@ -1166,7 +1276,7 @@ loxParser::ExpressionContext* loxParser::expression() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(158);
+    setState(171);
     assignment();
    
   }
@@ -1209,7 +1319,7 @@ size_t loxParser::AssignmentContext::getRuleIndex() const {
 
 loxParser::AssignmentContext* loxParser::assignment() {
   AssignmentContext *_localctx = _tracker.createInstance<AssignmentContext>(_ctx, getState());
-  enterRule(_localctx, 28, loxParser::RuleAssignment);
+  enterRule(_localctx, 32, loxParser::RuleAssignment);
 
 #if __cplusplus > 201703L
   auto onExit = finally([=, this] {
@@ -1219,38 +1329,38 @@ loxParser::AssignmentContext* loxParser::assignment() {
     exitRule();
   });
   try {
-    setState(169);
+    setState(182);
     _errHandler->sync(this);
     switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 13, _ctx)) {
     case 1: {
       enterOuterAlt(_localctx, 1);
-      setState(163);
+      setState(176);
       _errHandler->sync(this);
 
       switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 12, _ctx)) {
       case 1: {
-        setState(160);
+        setState(173);
         call();
-        setState(161);
-        match(loxParser::T__15);
+        setState(174);
+        match(loxParser::T__17);
         break;
       }
 
       default:
         break;
       }
-      setState(165);
+      setState(178);
       match(loxParser::IDENTIFIER);
-      setState(166);
+      setState(179);
       match(loxParser::T__7);
-      setState(167);
+      setState(180);
       assignment();
       break;
     }
 
     case 2: {
       enterOuterAlt(_localctx, 2);
-      setState(168);
+      setState(181);
       logic_or();
       break;
     }
@@ -1291,7 +1401,7 @@ size_t loxParser::Logic_orContext::getRuleIndex() const {
 
 loxParser::Logic_orContext* loxParser::logic_or() {
   Logic_orContext *_localctx = _tracker.createInstance<Logic_orContext>(_ctx, getState());
-  enterRule(_localctx, 30, loxParser::RuleLogic_or);
+  enterRule(_localctx, 34, loxParser::RuleLogic_or);
   size_t _la = 0;
 
 #if __cplusplus > 201703L
@@ -1303,17 +1413,17 @@ loxParser::Logic_orContext* loxParser::logic_or() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(171);
+    setState(184);
     logic_and();
-    setState(176);
+    setState(189);
     _errHandler->sync(this);
     _la = _input->LA(1);
-    while (_la == loxParser::T__16) {
-      setState(172);
-      match(loxParser::T__16);
-      setState(173);
+    while (_la == loxParser::T__18) {
+      setState(185);
+      match(loxParser::T__18);
+      setState(186);
       logic_and();
-      setState(178);
+      setState(191);
       _errHandler->sync(this);
       _la = _input->LA(1);
     }
@@ -1350,7 +1460,7 @@ size_t loxParser::Logic_andContext::getRuleIndex() const {
 
 loxParser::Logic_andContext* loxParser::logic_and() {
   Logic_andContext *_localctx = _tracker.createInstance<Logic_andContext>(_ctx, getState());
-  enterRule(_localctx, 32, loxParser::RuleLogic_and);
+  enterRule(_localctx, 36, loxParser::RuleLogic_and);
   size_t _la = 0;
 
 #if __cplusplus > 201703L
@@ -1362,17 +1472,17 @@ loxParser::Logic_andContext* loxParser::logic_and() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(179);
+    setState(192);
     equality();
-    setState(184);
+    setState(197);
     _errHandler->sync(this);
     _la = _input->LA(1);
-    while (_la == loxParser::T__17) {
-      setState(180);
-      match(loxParser::T__17);
-      setState(181);
+    while (_la == loxParser::T__19) {
+      setState(193);
+      match(loxParser::T__19);
+      setState(194);
       equality();
-      setState(186);
+      setState(199);
       _errHandler->sync(this);
       _la = _input->LA(1);
     }
@@ -1409,7 +1519,7 @@ size_t loxParser::EqualityContext::getRuleIndex() const {
 
 loxParser::EqualityContext* loxParser::equality() {
   EqualityContext *_localctx = _tracker.createInstance<EqualityContext>(_ctx, getState());
-  enterRule(_localctx, 34, loxParser::RuleEquality);
+  enterRule(_localctx, 38, loxParser::RuleEquality);
   size_t _la = 0;
 
 #if __cplusplus > 201703L
@@ -1421,28 +1531,28 @@ loxParser::EqualityContext* loxParser::equality() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(187);
+    setState(200);
     comparison();
-    setState(192);
+    setState(205);
     _errHandler->sync(this);
     _la = _input->LA(1);
-    while (_la == loxParser::T__18
+    while (_la == loxParser::T__20
 
-    || _la == loxParser::T__19) {
-      setState(188);
+    || _la == loxParser::T__21) {
+      setState(201);
       _la = _input->LA(1);
-      if (!(_la == loxParser::T__18
+      if (!(_la == loxParser::T__20
 
-      || _la == loxParser::T__19)) {
+      || _la == loxParser::T__21)) {
       _errHandler->recoverInline(this);
       }
       else {
         _errHandler->reportMatch(this);
         consume();
       }
-      setState(189);
+      setState(202);
       comparison();
-      setState(194);
+      setState(207);
       _errHandler->sync(this);
       _la = _input->LA(1);
     }
@@ -1479,7 +1589,7 @@ size_t loxParser::ComparisonContext::getRuleIndex() const {
 
 loxParser::ComparisonContext* loxParser::comparison() {
   ComparisonContext *_localctx = _tracker.createInstance<ComparisonContext>(_ctx, getState());
-  enterRule(_localctx, 36, loxParser::RuleComparison);
+  enterRule(_localctx, 40, loxParser::RuleComparison);
   size_t _la = 0;
 
 #if __cplusplus > 201703L
@@ -1491,26 +1601,26 @@ loxParser::ComparisonContext* loxParser::comparison() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(195);
+    setState(208);
     term();
-    setState(200);
+    setState(213);
     _errHandler->sync(this);
     _la = _input->LA(1);
     while ((((_la & ~ 0x3fULL) == 0) &&
-      ((1ULL << _la) & 31457280) != 0)) {
-      setState(196);
+      ((1ULL << _la) & 125829120) != 0)) {
+      setState(209);
       _la = _input->LA(1);
       if (!((((_la & ~ 0x3fULL) == 0) &&
-        ((1ULL << _la) & 31457280) != 0))) {
+        ((1ULL << _la) & 125829120) != 0))) {
       _errHandler->recoverInline(this);
       }
       else {
         _errHandler->reportMatch(this);
         consume();
       }
-      setState(197);
+      setState(210);
       term();
-      setState(202);
+      setState(215);
       _errHandler->sync(this);
       _la = _input->LA(1);
     }
@@ -1547,7 +1657,7 @@ size_t loxParser::TermContext::getRuleIndex() const {
 
 loxParser::TermContext* loxParser::term() {
   TermContext *_localctx = _tracker.createInstance<TermContext>(_ctx, getState());
-  enterRule(_localctx, 38, loxParser::RuleTerm);
+  enterRule(_localctx, 42, loxParser::RuleTerm);
   size_t _la = 0;
 
 #if __cplusplus > 201703L
@@ -1559,28 +1669,28 @@ loxParser::TermContext* loxParser::term() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(203);
+    setState(216);
     factor();
-    setState(208);
+    setState(221);
     _errHandler->sync(this);
     _la = _input->LA(1);
-    while (_la == loxParser::T__24
+    while (_la == loxParser::T__26
 
-    || _la == loxParser::T__25) {
-      setState(204);
+    || _la == loxParser::T__27) {
+      setState(217);
       _la = _input->LA(1);
-      if (!(_la == loxParser::T__24
+      if (!(_la == loxParser::T__26
 
-      || _la == loxParser::T__25)) {
+      || _la == loxParser::T__27)) {
       _errHandler->recoverInline(this);
       }
       else {
         _errHandler->reportMatch(this);
         consume();
       }
-      setState(205);
+      setState(218);
       factor();
-      setState(210);
+      setState(223);
       _errHandler->sync(this);
       _la = _input->LA(1);
     }
@@ -1617,7 +1727,7 @@ size_t loxParser::FactorContext::getRuleIndex() const {
 
 loxParser::FactorContext* loxParser::factor() {
   FactorContext *_localctx = _tracker.createInstance<FactorContext>(_ctx, getState());
-  enterRule(_localctx, 40, loxParser::RuleFactor);
+  enterRule(_localctx, 44, loxParser::RuleFactor);
   size_t _la = 0;
 
 #if __cplusplus > 201703L
@@ -1629,28 +1739,28 @@ loxParser::FactorContext* loxParser::factor() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(211);
+    setState(224);
     unary();
-    setState(216);
+    setState(229);
     _errHandler->sync(this);
     _la = _input->LA(1);
-    while (_la == loxParser::T__26
+    while (_la == loxParser::T__28
 
-    || _la == loxParser::T__27) {
-      setState(212);
+    || _la == loxParser::T__29) {
+      setState(225);
       _la = _input->LA(1);
-      if (!(_la == loxParser::T__26
+      if (!(_la == loxParser::T__28
 
-      || _la == loxParser::T__27)) {
+      || _la == loxParser::T__29)) {
       _errHandler->recoverInline(this);
       }
       else {
         _errHandler->reportMatch(this);
         consume();
       }
-      setState(213);
+      setState(226);
       unary();
-      setState(218);
+      setState(231);
       _errHandler->sync(this);
       _la = _input->LA(1);
     }
@@ -1687,7 +1797,7 @@ size_t loxParser::UnaryContext::getRuleIndex() const {
 
 loxParser::UnaryContext* loxParser::unary() {
   UnaryContext *_localctx = _tracker.createInstance<UnaryContext>(_ctx, getState());
-  enterRule(_localctx, 42, loxParser::RuleUnary);
+  enterRule(_localctx, 46, loxParser::RuleUnary);
   size_t _la = 0;
 
 #if __cplusplus > 201703L
@@ -1698,39 +1808,39 @@ loxParser::UnaryContext* loxParser::unary() {
     exitRule();
   });
   try {
-    setState(222);
+    setState(235);
     _errHandler->sync(this);
     switch (_input->LA(1)) {
-      case loxParser::T__24:
-      case loxParser::T__28: {
+      case loxParser::T__26:
+      case loxParser::T__30: {
         enterOuterAlt(_localctx, 1);
-        setState(219);
+        setState(232);
         _la = _input->LA(1);
-        if (!(_la == loxParser::T__24
+        if (!(_la == loxParser::T__26
 
-        || _la == loxParser::T__28)) {
+        || _la == loxParser::T__30)) {
         _errHandler->recoverInline(this);
         }
         else {
           _errHandler->reportMatch(this);
           consume();
         }
-        setState(220);
+        setState(233);
         unary();
         break;
       }
 
       case loxParser::T__1:
-      case loxParser::T__29:
-      case loxParser::T__30:
       case loxParser::T__31:
       case loxParser::T__32:
       case loxParser::T__33:
+      case loxParser::T__34:
+      case loxParser::T__35:
       case loxParser::NUMBER:
       case loxParser::STRING_LITERAL:
       case loxParser::IDENTIFIER: {
         enterOuterAlt(_localctx, 2);
-        setState(221);
+        setState(234);
         call();
         break;
       }
@@ -1783,7 +1893,7 @@ size_t loxParser::CallContext::getRuleIndex() const {
 
 loxParser::CallContext* loxParser::call() {
   CallContext *_localctx = _tracker.createInstance<CallContext>(_ctx, getState());
-  enterRule(_localctx, 44, loxParser::RuleCall);
+  enterRule(_localctx, 48, loxParser::RuleCall);
   size_t _la = 0;
 
 #if __cplusplus > 201703L
@@ -1796,37 +1906,37 @@ loxParser::CallContext* loxParser::call() {
   try {
     size_t alt;
     enterOuterAlt(_localctx, 1);
-    setState(224);
+    setState(237);
     primay();
-    setState(234);
+    setState(247);
     _errHandler->sync(this);
     alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 23, _ctx);
     while (alt != 2 && alt != atn::ATN::INVALID_ALT_NUMBER) {
       if (alt == 1) {
-        setState(232);
+        setState(245);
         _errHandler->sync(this);
         switch (_input->LA(1)) {
           case loxParser::T__1: {
-            setState(225);
+            setState(238);
             match(loxParser::T__1);
-            setState(227);
+            setState(240);
             _errHandler->sync(this);
 
             _la = _input->LA(1);
             if ((((_la & ~ 0x3fULL) == 0) &&
-              ((1ULL << _la) & 1958001770500) != 0)) {
-              setState(226);
+              ((1ULL << _la) & 7832007081988) != 0)) {
+              setState(239);
               arguments();
             }
-            setState(229);
+            setState(242);
             match(loxParser::T__2);
             break;
           }
 
-          case loxParser::T__15: {
-            setState(230);
-            match(loxParser::T__15);
-            setState(231);
+          case loxParser::T__17: {
+            setState(243);
+            match(loxParser::T__17);
+            setState(244);
             match(loxParser::IDENTIFIER);
             break;
           }
@@ -1835,7 +1945,7 @@ loxParser::CallContext* loxParser::call() {
           throw NoViableAltException(this);
         } 
       }
-      setState(236);
+      setState(249);
       _errHandler->sync(this);
       alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 23, _ctx);
     }
@@ -1880,7 +1990,7 @@ size_t loxParser::PrimayContext::getRuleIndex() const {
 
 loxParser::PrimayContext* loxParser::primay() {
   PrimayContext *_localctx = _tracker.createInstance<PrimayContext>(_ctx, getState());
-  enterRule(_localctx, 46, loxParser::RulePrimay);
+  enterRule(_localctx, 50, loxParser::RulePrimay);
 
 #if __cplusplus > 201703L
   auto onExit = finally([=, this] {
@@ -1890,76 +2000,76 @@ loxParser::PrimayContext* loxParser::primay() {
     exitRule();
   });
   try {
-    setState(251);
+    setState(264);
     _errHandler->sync(this);
     switch (_input->LA(1)) {
-      case loxParser::T__29: {
-        enterOuterAlt(_localctx, 1);
-        setState(237);
-        match(loxParser::T__29);
-        break;
-      }
-
-      case loxParser::T__30: {
-        enterOuterAlt(_localctx, 2);
-        setState(238);
-        match(loxParser::T__30);
-        break;
-      }
-
       case loxParser::T__31: {
-        enterOuterAlt(_localctx, 3);
-        setState(239);
+        enterOuterAlt(_localctx, 1);
+        setState(250);
         match(loxParser::T__31);
         break;
       }
 
       case loxParser::T__32: {
-        enterOuterAlt(_localctx, 4);
-        setState(240);
+        enterOuterAlt(_localctx, 2);
+        setState(251);
         match(loxParser::T__32);
+        break;
+      }
+
+      case loxParser::T__33: {
+        enterOuterAlt(_localctx, 3);
+        setState(252);
+        match(loxParser::T__33);
+        break;
+      }
+
+      case loxParser::T__34: {
+        enterOuterAlt(_localctx, 4);
+        setState(253);
+        match(loxParser::T__34);
         break;
       }
 
       case loxParser::NUMBER: {
         enterOuterAlt(_localctx, 5);
-        setState(241);
+        setState(254);
         match(loxParser::NUMBER);
         break;
       }
 
       case loxParser::STRING_LITERAL: {
         enterOuterAlt(_localctx, 6);
-        setState(242);
+        setState(255);
         match(loxParser::STRING_LITERAL);
         break;
       }
 
       case loxParser::IDENTIFIER: {
         enterOuterAlt(_localctx, 7);
-        setState(243);
+        setState(256);
         match(loxParser::IDENTIFIER);
         break;
       }
 
       case loxParser::T__1: {
         enterOuterAlt(_localctx, 8);
-        setState(244);
+        setState(257);
         match(loxParser::T__1);
-        setState(245);
+        setState(258);
         expression();
-        setState(246);
+        setState(259);
         match(loxParser::T__2);
         break;
       }
 
-      case loxParser::T__33: {
+      case loxParser::T__35: {
         enterOuterAlt(_localctx, 9);
-        setState(248);
-        match(loxParser::T__33);
-        setState(249);
-        match(loxParser::T__15);
-        setState(250);
+        setState(261);
+        match(loxParser::T__35);
+        setState(262);
+        match(loxParser::T__17);
+        setState(263);
         match(loxParser::IDENTIFIER);
         break;
       }
@@ -2004,7 +2114,7 @@ size_t loxParser::FunctionContext::getRuleIndex() const {
 
 loxParser::FunctionContext* loxParser::function() {
   FunctionContext *_localctx = _tracker.createInstance<FunctionContext>(_ctx, getState());
-  enterRule(_localctx, 48, loxParser::RuleFunction);
+  enterRule(_localctx, 52, loxParser::RuleFunction);
   size_t _la = 0;
 
 #if __cplusplus > 201703L
@@ -2016,21 +2126,21 @@ loxParser::FunctionContext* loxParser::function() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(253);
+    setState(266);
     match(loxParser::IDENTIFIER);
-    setState(254);
+    setState(267);
     match(loxParser::T__1);
-    setState(256);
+    setState(269);
     _errHandler->sync(this);
 
     _la = _input->LA(1);
     if (_la == loxParser::IDENTIFIER) {
-      setState(255);
+      setState(268);
       parameters();
     }
-    setState(258);
+    setState(271);
     match(loxParser::T__2);
-    setState(259);
+    setState(272);
     block();
    
   }
@@ -2065,7 +2175,7 @@ size_t loxParser::ParametersContext::getRuleIndex() const {
 
 loxParser::ParametersContext* loxParser::parameters() {
   ParametersContext *_localctx = _tracker.createInstance<ParametersContext>(_ctx, getState());
-  enterRule(_localctx, 50, loxParser::RuleParameters);
+  enterRule(_localctx, 54, loxParser::RuleParameters);
   size_t _la = 0;
 
 #if __cplusplus > 201703L
@@ -2077,17 +2187,17 @@ loxParser::ParametersContext* loxParser::parameters() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(261);
+    setState(274);
     match(loxParser::IDENTIFIER);
-    setState(266);
+    setState(279);
     _errHandler->sync(this);
     _la = _input->LA(1);
-    while (_la == loxParser::T__34) {
-      setState(262);
-      match(loxParser::T__34);
-      setState(263);
+    while (_la == loxParser::T__36) {
+      setState(275);
+      match(loxParser::T__36);
+      setState(276);
       match(loxParser::IDENTIFIER);
-      setState(268);
+      setState(281);
       _errHandler->sync(this);
       _la = _input->LA(1);
     }
@@ -2124,7 +2234,7 @@ size_t loxParser::ArgumentsContext::getRuleIndex() const {
 
 loxParser::ArgumentsContext* loxParser::arguments() {
   ArgumentsContext *_localctx = _tracker.createInstance<ArgumentsContext>(_ctx, getState());
-  enterRule(_localctx, 52, loxParser::RuleArguments);
+  enterRule(_localctx, 56, loxParser::RuleArguments);
   size_t _la = 0;
 
 #if __cplusplus > 201703L
@@ -2136,17 +2246,17 @@ loxParser::ArgumentsContext* loxParser::arguments() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(269);
+    setState(282);
     expression();
-    setState(274);
+    setState(287);
     _errHandler->sync(this);
     _la = _input->LA(1);
-    while (_la == loxParser::T__34) {
-      setState(270);
-      match(loxParser::T__34);
-      setState(271);
+    while (_la == loxParser::T__36) {
+      setState(283);
+      match(loxParser::T__36);
+      setState(284);
       expression();
-      setState(276);
+      setState(289);
       _errHandler->sync(this);
       _la = _input->LA(1);
     }

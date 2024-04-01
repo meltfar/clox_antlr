@@ -37,13 +37,11 @@ int main() {
 
     std::stringstream ss;
     ss << R"=(
-    var i = 10;
-    var b = false;
-    if (i < 20 and b) {
-        print "true!";
-    } else {
-        print "false";
+    func areWe() {
+        print "Yes!!";
+        return 1;
     }
+    print areWe();
 )=";
     antlr4::ANTLRInputStream input(ss);
     loxLexer lexer(&input);

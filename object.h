@@ -17,6 +17,8 @@
 
 class ObjString;
 
+class ObjFunction;
+
 enum ObjectType {
     OBJ_BOUND_METHOD,
     OBJ_CLASS,
@@ -74,7 +76,6 @@ struct LoxValue {
     explicit LoxValue(std::string &&str);
 
     explicit LoxValue() {
-        std::cout << "nil constructor called" << std::endl;
         this->type = VAL_NIL;
         this->data = nullptr;
     }
@@ -117,6 +118,8 @@ struct LoxValue {
     }
 
     [[nodiscard]] std::string as_string() const;
+
+    [[nodiscard]] std::shared_ptr<ObjFunction> &as_function() const;
 };
 
 template<>
@@ -175,6 +178,8 @@ public:
 
     void write_constant(double value);
 
+    void write_function(std::shared_ptr<ObjFunction> func);
+
     void write_constant(bool value);
 
     // void write_object(std::unique_ptr<Object> obj);
@@ -185,6 +190,10 @@ public:
 
     int get_arity() const {
         return this->arity_;
+    }
+
+    void inc_arity() {
+        this->arity_ += 1;
     }
 
     void debug_print_chunk() const;
@@ -201,6 +210,10 @@ public:
         return this->function_name_;
     }
 
+    void set_function_name(std::string n) {
+        this->function_name_ = std::move(n);
+    }
+
     void add_constant_opcode_with_index(OpCode op, uint16_t index);
 
     int emit_jump(OpCode opCode);
@@ -208,6 +221,8 @@ public:
     void patch_jump(int offset);
 
     void emit_loop(uint16_t index);
+
+    void emit_return();
 
 private:
     uint16_t add_constant_opcode();
