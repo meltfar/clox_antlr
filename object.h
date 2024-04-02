@@ -153,6 +153,8 @@ inline std::ostream &operator<<(std::ostream &os, const LoxValue &lv) {
         os << std::format("{}", std::get<double>(lv.data));
     } else if (std::holds_alternative<bool>(lv.data)) {
         os << std::format("{}", std::get<bool>(lv.data));
+    } else if (lv.type == VAL_NIL) {
+        os << "nil";
     } else {
         // os << std::format("{}", std::get<std::unique_ptr<Object> >(lv.data)->get_type());
         os << std::get<std::shared_ptr<Object> >(lv.data)->print();

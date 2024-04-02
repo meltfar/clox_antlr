@@ -48,9 +48,9 @@ public:
     Compiler(const Compiler &) = delete;
 
     // get into functions or closures
-    Compiler(Compiler *parent_, FunctionType type) : Compiler() {
+    Compiler(Compiler *parent_, FunctionType type, bool inc_scope) : Compiler() {
         this->parent_compiler_ = parent_;
-        this->scope_depth_ = parent_->scope_depth_; // leave block to increase depth, we use the same one here.
+        this->scope_depth_ = parent_->scope_depth_ + (inc_scope ? 1 : 0);
         this->type_ = type;
 
         if (type == TYPE_FUNCTION) {
@@ -59,9 +59,9 @@ public:
     }
 
     // get into block (for, while, bare block...)
-    explicit Compiler(Compiler *parent_) {
+    explicit Compiler(Compiler *parent_, bool inc_scope) {
         this->parent_compiler_ = parent_; // TODO: Do I really need this?
-        this->scope_depth_ = parent_->scope_depth_ + 1;
+        this->scope_depth_ = parent_->scope_depth_ + (inc_scope ? 1 : 0);
         this->function_ = parent_->function_;
         this->type_ = parent_->type_;
         // reserved field, for this
@@ -125,7 +125,7 @@ public:
 
     void primary(loxParser::PrimayContext *ctx);
 
-    void arguments_dec(loxParser::ArgumentsContext* ctx);
+    void arguments_dec(loxParser::ArgumentsContext *ctx);
 
     void variable_dec(loxParser::VarDecContext *ctx);
 

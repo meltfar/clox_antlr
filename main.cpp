@@ -37,11 +37,10 @@ int main() {
 
     std::stringstream ss;
     ss << R"=(
-    func areWe() {
-        print "Yes!!";
-        return 1;
+    func test(a) {
+        print a;
     }
-    print areWe();
+    test("abc");
 )=";
     antlr4::ANTLRInputStream input(ss);
     loxLexer lexer(&input);

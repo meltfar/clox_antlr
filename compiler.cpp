@@ -78,9 +78,8 @@ void Compiler::statement(const loxParser::StatementContext *ctx) {
     }
     /* block*/
     if (const auto block = dynamic_cast<loxParser::BlockContext *>(cld); block != nullptr) {
-//        auto sub_compiler = Compiler(this);
-//        sub_compiler.block_dec(block);
-        this->block_dec(block);
+        auto sub_compiler = Compiler(this, true);
+        sub_compiler.block_dec(block);
         // this->enter_scope();
         // this->block_dec(block);
         // this->exit_scope();
@@ -492,11 +491,10 @@ void Compiler::block_dec(loxParser::BlockContext *ctx) {
     assert(ctx->children.size() >= 2);
     // skip '}'
     ctx->removeLastChild();
-    auto sub_compiler = Compiler(this);
     // skip '{'
     for (auto i = 1; i < ctx->children.size(); i++) {
         if (const auto cld = dynamic_cast<loxParser::DeclarationContext *>(ctx->children[i]); cld != nullptr) {
-            sub_compiler.declaration(cld);
+            this->declaration(cld);
         }
     }
 }
@@ -558,7 +556,8 @@ void Compiler::if_dec(loxParser::IfStmtContext *ctx) {
     auto jump_patch_pos = this->function_->emit_jump(OP_JUMP_IF_FALSE);
     this->function_->write_opcode(OP_POP);
     // block
-    this->block_dec(ctx->block(0));
+    auto sub_compiler = Compiler(this, true);
+    sub_compiler.block_dec(ctx->block(0));
     // jumping tag for jump over "else" branch
     auto jump_over_else = this->function_->emit_jump(OP_JUMP);
     // patch jump
@@ -567,7 +566,8 @@ void Compiler::if_dec(loxParser::IfStmtContext *ctx) {
     // else
     if (ctx->children.size() > 5) {
         // has an else branch
-        this->block_dec(ctx->block(1));
+        auto sub_else_compiler = Compiler(this, true);
+        sub_else_compiler.block_dec(ctx->block(1));
     }
     this->function_->patch_jump(jump_over_else);
 }
@@ -592,7 +592,8 @@ void Compiler::while_stmt(loxParser::WhileStmtContext *ctx) {
 
     auto exit_jump = this->function_->emit_jump(OP_JUMP_IF_FALSE);
     this->function_->write_opcode(OP_POP);
-    this->block_dec(ctx->block());
+    auto sub_compiler = Compiler(this, true);
+    sub_compiler.block_dec(ctx->block());
 
     this->function_->emit_loop(loop_start);
 
@@ -602,11 +603,10 @@ void Compiler::while_stmt(loxParser::WhileStmtContext *ctx) {
 
 void Compiler::handle_function(FunctionType func_type, loxParser::ParametersContext *param_ctx,
                                loxParser::BlockContext *blk_ctx, std::string func_name) {
-    auto func_compiler = Compiler(this, func_type);
+    auto func_compiler = Compiler(this, func_type, true);
     func_compiler.function_->set_function_name(std::move(func_name));
 
     // parameters
-    func_compiler.scope_depth_ += 1; // temporary action, raise the depth to handle variable
     if (param_ctx != nullptr) {
         const auto all_idents = param_ctx->IDENTIFIER();
         for (auto &ident: all_idents) {
@@ -620,7 +620,6 @@ void Compiler::handle_function(FunctionType func_type, loxParser::ParametersCont
         }
     }
     // body
-    func_compiler.scope_depth_ -= 1; // temporary action, to keep the compiler in block has the same depth with func_compiler
     func_compiler.block_dec(blk_ctx);
 
     this->function_->write_function(func_compiler.function_);
