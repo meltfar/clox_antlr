@@ -162,6 +162,12 @@ inline std::ostream &operator<<(std::ostream &os, const LoxValue &lv) {
     return os;
 }
 
+class ObjCallable : public Object {
+
+
+
+};
+
 class ObjFunction : public Object {
     int arity_;
     std::vector<uint8_t> chunk_;

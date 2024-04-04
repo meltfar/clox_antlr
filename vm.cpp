@@ -7,12 +7,15 @@
 #include <spdlog/spdlog.h>
 
 void VM::execute() {
-    CallFrame* frame = &this->call_frames_[this->call_frames_.size() - 1];
+
+    CallFrame *frame = &this->call_frames_[this->call_frames_.size() - 1];
+
+    auto chunk = frame->function->get_chunk().data();
+    auto values = frame->function->get_values().data();
 
     while (true) {
-        auto &chunk = frame->function->get_chunk();
-        auto &values = frame->function->get_values();
-        switch (auto op = chunk[frame->ip++]) {
+        auto op = chunk[frame->ip++];
+        switch (op) {
             case OP_RETURN: {
                 // if there is still a call frame, we return to it.
                 auto result = this->pop();
@@ -26,6 +29,8 @@ void VM::execute() {
                 this->stack_top_ = frame->slots;
                 this->push(result);
                 frame = &this->call_frames_[this->call_frames_.size() - 1];
+                chunk = frame->function->get_chunk().data();
+                values = frame->function->get_values().data();
                 break;
             }
             case OP_CONSTANT_16: {
@@ -61,7 +66,7 @@ void VM::execute() {
                 const auto op2 = this->pop();
                 const auto op1 = this->pop();
 
-                ensure_all_type({&op1, &op2}, VAL_NUMBER);
+//                ensure_all_type({&op1, &op2}, VAL_NUMBER);
 
                 const auto v1 = std::get<double>(op1.data);
                 const auto v2 = std::get<double>(op2.data);
@@ -220,11 +225,19 @@ void VM::execute() {
                 // after call on value, the function will be "called", so it safe to get the latest frame
                 // this is what magic happens: switch to the frame of the new function, and start to exec from ip 0.
                 frame = &this->call_frames_[this->call_frames_.size() - 1];
+                chunk = frame->function->get_chunk().data();
+                values = frame->function->get_values().data();
                 break;
             }
             default:
                 throw std::runtime_error(std::format("unexpected op code: {}", op));
         }
+//        auto end = std::chrono::system_clock::now();
+//        std::chrono::duration<double> elapsed_seconds = end - start;
+//        if (elapsed_seconds.count() > 0.1) {
+//
+//            std::cout << "on " << op << " spent " << elapsed_seconds.count() << "s" << std::endl;
+//        }
     }
 }
 
@@ -369,7 +382,7 @@ bool VM::call_on_value(int arg_count) {
     return false;
 }
 
-void VM::call(const std::shared_ptr<ObjFunction>& function, int arg_count) {
+void VM::call(const std::shared_ptr<ObjFunction> &function, int arg_count) {
     if (function->get_arity() != arg_count) {
         throw std::runtime_error(fmt::format("expected {} arguments, but found {}", function->get_arity(), arg_count));
     }

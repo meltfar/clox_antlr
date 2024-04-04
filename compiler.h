@@ -36,6 +36,7 @@ class Compiler : std::enable_shared_from_this<Compiler> {
     std::unordered_map<std::string, LoxValue> string_table_;
     std::vector<Local> locals_;
     FunctionType type_;
+    bool is_block = false;
 
 public:
     explicit Compiler() : scope_depth_(0), type_(TYPE_SCRIPT) {
@@ -59,23 +60,31 @@ public:
     }
 
     // get into block (for, while, bare block...)
-    explicit Compiler(Compiler *parent_, bool inc_scope) {
+    explicit Compiler(Compiler *parent_, bool inc_scope, bool for_block) {
         this->parent_compiler_ = parent_; // TODO: Do I really need this?
         this->scope_depth_ = parent_->scope_depth_ + (inc_scope ? 1 : 0);
         this->function_ = parent_->function_;
         this->type_ = parent_->type_;
+        this->is_block = for_block;
+        // for block, we should inherit local, for function, create new local
+        this->locals_ = parent_->locals_;
         // reserved field, for this
-        this->locals_.emplace_back(Local{"this", 0, false});
+//        this->locals_.emplace_back(Local{"this", 0, false});
     }
 
     // exiting blocks
     ~Compiler() {
         SPDLOG_DEBUG("======== ~ compiler ========");
-        SPDLOG_DEBUG("destructing compiler at scope depth: {}", this->scope_depth_);
-        if (!this->locals_.empty()) {
+        SPDLOG_DEBUG("destructing compiler at scope depth: {}, if_block: {}", this->scope_depth_, this->is_block);
+        // function doesn't need pop local
+        if (this->is_block && !this->locals_.empty()) {
             for (auto &s: this->locals_) {
                 // Maybe we need to skip the first local, the `this`
                 if (s.scope_depth == 0) {
+                    continue;
+                }
+                // don't pop locals from upper level block
+                if (s.scope_depth < this->scope_depth_)  {
                     continue;
                 }
                 // if it was captured, then push (OP_CLOSE_UPVALUE)
@@ -88,9 +97,11 @@ public:
                 }
             }
         }
-        if (this->function_ != nullptr) {
-            this->function_->write_opcode(OP_NIL);
-            this->function_->write_opcode(OP_RETURN);
+        if (!this->is_block) {
+            if (this->function_ != nullptr) {
+                this->function_->write_opcode(OP_NIL);
+                this->function_->write_opcode(OP_RETURN);
+            }
         }
         SPDLOG_DEBUG("======== ~ compiler over ========");
     }

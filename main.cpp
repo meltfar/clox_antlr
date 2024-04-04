@@ -2,12 +2,14 @@
 // Created by zhouplus on 16/03/2024.
 //
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
+
 #include "loxLexer.h"
 #include "loxParser.h"
 #include "antlr4-runtime.h"
 #include <iostream>
 #include <sstream>
 #include <format>
+#include <chrono>
 
 #include "compiler.h"
 #include "vm.h"
@@ -37,10 +39,13 @@ int main() {
 
     std::stringstream ss;
     ss << R"=(
-    func test(a) {
-        print a;
+    func fib(n) {
+        if (n < 2) {
+            return n;
+        }
+        return fib(n - 2) + fib(n - 1);
     }
-    test("abc");
+    print fib(30);
 )=";
     antlr4::ANTLRInputStream input(ss);
     loxLexer lexer(&input);
@@ -62,7 +67,11 @@ int main() {
     Compiler::debug_print(script);
 
     VM vm(std::move(string_table), std::move(script));
-    vm.execute();
 
+    auto start = std::chrono::system_clock::now();
+    vm.execute();
+    auto end = std::chrono::system_clock::now();
+    std::chrono::duration<double> elapsed_seconds = end - start;
+    std::cout << "it takes: " << elapsed_seconds << "s to complete" << std::endl;
     return 0;
 }

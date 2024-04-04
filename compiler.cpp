@@ -2,6 +2,12 @@
 #include "spdlog/spdlog.h"
 
 void Compiler::debug_print(const std::shared_ptr<ObjFunction> &func) {
+    // TODO: temporary approach
+    for (auto& v:func->get_values()) {
+        if (v.is_obj() && v.as_object()->is_type<ObjFunction>()) {
+            v.as_function()->debug_print_chunk();
+        }
+    }
     func->debug_print_chunk();
 }
 
@@ -78,7 +84,7 @@ void Compiler::statement(const loxParser::StatementContext *ctx) {
     }
     /* block*/
     if (const auto block = dynamic_cast<loxParser::BlockContext *>(cld); block != nullptr) {
-        auto sub_compiler = Compiler(this, true);
+        auto sub_compiler = Compiler(this, true, true);
         sub_compiler.block_dec(block);
         // this->enter_scope();
         // this->block_dec(block);
@@ -556,7 +562,7 @@ void Compiler::if_dec(loxParser::IfStmtContext *ctx) {
     auto jump_patch_pos = this->function_->emit_jump(OP_JUMP_IF_FALSE);
     this->function_->write_opcode(OP_POP);
     // block
-    auto sub_compiler = Compiler(this, true);
+    auto sub_compiler = Compiler(this, true, true);
     sub_compiler.block_dec(ctx->block(0));
     // jumping tag for jump over "else" branch
     auto jump_over_else = this->function_->emit_jump(OP_JUMP);
@@ -566,7 +572,7 @@ void Compiler::if_dec(loxParser::IfStmtContext *ctx) {
     // else
     if (ctx->children.size() > 5) {
         // has an else branch
-        auto sub_else_compiler = Compiler(this, true);
+        auto sub_else_compiler = Compiler(this, true, true);
         sub_else_compiler.block_dec(ctx->block(1));
     }
     this->function_->patch_jump(jump_over_else);
@@ -592,7 +598,7 @@ void Compiler::while_stmt(loxParser::WhileStmtContext *ctx) {
 
     auto exit_jump = this->function_->emit_jump(OP_JUMP_IF_FALSE);
     this->function_->write_opcode(OP_POP);
-    auto sub_compiler = Compiler(this, true);
+    auto sub_compiler = Compiler(this, true, true);
     sub_compiler.block_dec(ctx->block());
 
     this->function_->emit_loop(loop_start);

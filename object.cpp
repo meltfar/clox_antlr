@@ -77,7 +77,7 @@ uint16_t ObjFunction::write_string_only(std::string &&s) {
 }
 
 void ObjFunction::debug_print_chunk() const {
-    std::cout << "======= chunk ================" << std::endl;
+    std::cout << "======= chunk " << this->function_name_ << " ================" << std::endl;
     size_t index = 0;
     while (index < this->chunk_.size()) {
         const auto op = static_cast<OpCode>(this->chunk_[index]);

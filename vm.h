@@ -21,7 +21,7 @@
 struct CallFrame {
     std::shared_ptr<ObjFunction> function;
     uint16_t ip;
-    std::array<LoxValue, STACK_MAX>::iterator slots;
+    LoxValue* slots;
 };
 
 class VM {
@@ -29,14 +29,14 @@ class VM {
     std::unordered_map<std::string, LoxValue> globals_;
     std::unordered_map<std::string, LoxValue> strings_;
     std::vector<CallFrame> call_frames_;
-    std::array<LoxValue, STACK_MAX>::iterator stack_top_;
+    LoxValue* stack_top_;
 
 public:
     VM(std::unordered_map<std::string, LoxValue> strings, std::shared_ptr<ObjFunction> function)
-            : strings_(std::move(strings)), stack_top_(this->stack_.begin()) {
+            : strings_(std::move(strings)), stack_top_(this->stack_.data()) {
         this->push(LoxValue(function));
         // call frame for the script function
-        CallFrame cf = CallFrame{std::move(function), 0, this->stack_.begin()};
+        CallFrame cf = CallFrame{std::move(function), 0, this->stack_.data()};
         this->call_frames_.push_back(std::move(cf));
     }
 
